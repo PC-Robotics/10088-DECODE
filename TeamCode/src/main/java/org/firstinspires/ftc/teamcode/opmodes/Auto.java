@@ -75,7 +75,7 @@ public class Auto extends LinearOpMode {
         robot.intake.intake(); // release 5th ball
         sleep(500); // wait for release
 
-        robot.flywheel.stop();g
+        robot.flywheel.stop();
         robot.turnAbsolute(90);
     }
 
