@@ -25,9 +25,13 @@ public class Flywheel {
         flywheelRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
+    public void spinToSpeed(double power) {
+        flywheelLeft.setPower(power);
+        flywheelRight.setPower(power);
+    }
+
     public void spinToSpeed() {
-        flywheelLeft.setPower(.65);
-        flywheelRight.setPower(.65);
+        spinToSpeed(.65);
     }
 
     public void stop() {
