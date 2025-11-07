@@ -33,7 +33,7 @@ import org.firstinspires.ftc.teamcode.Settings;
  * left joystick y - slide up down manual control
  */
 
-@TeleOp(name = "Main Teleop", group = " Main")
+@TeleOp(name = "MainTeleop", group = "Main")
 public class MainTeleop extends LinearOpMode {
     Robot robot = new Robot(this);
 

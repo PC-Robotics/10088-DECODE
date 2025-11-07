@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
-@Autonomous(name = "Main Auto", group = "Autonomous")
+@Autonomous(name = "Auto", group = "Main", preselectTeleOp = "MainTeleop")
 public class Auto extends LinearOpMode {
     Robot robot = new Robot(this);
 

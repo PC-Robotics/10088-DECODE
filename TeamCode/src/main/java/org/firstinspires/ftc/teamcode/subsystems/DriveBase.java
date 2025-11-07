@@ -28,10 +28,10 @@ public class DriveBase {
      * Initialize the drive motors and configure their settings.
      */
     public void init() {
-        frontLeft = motorInit(opMode.hardwareMap, "frontleft", DcMotor.Direction.FORWARD);
-        backLeft = motorInit(opMode.hardwareMap, "backleft", DcMotor.Direction.REVERSE);
-        frontRight = motorInit(opMode.hardwareMap, "frontright", DcMotor.Direction.REVERSE);
-        backRight = motorInit(opMode.hardwareMap, "backright", DcMotor.Direction.FORWARD);
+        frontLeft = motorInit(opMode.hardwareMap, "frontleft", DcMotor.Direction.REVERSE);
+        backLeft = motorInit(opMode.hardwareMap, "backleft", DcMotor.Direction.FORWARD);
+        frontRight = motorInit(opMode.hardwareMap, "frontright", DcMotor.Direction.FORWARD);
+        backRight = motorInit(opMode.hardwareMap, "backright", DcMotor.Direction.REVERSE);
 
 //        verticalEncoder = motorInit(opMode.hardwareMap, "par", DcMotor.Direction.FORWARD);
 //        horizontalEncoder = motorInit(opMode.hardwareMap, "perp", DcMotor.Direction.FORWARD);
