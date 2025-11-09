@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.pedropathing.control.FilteredPIDFCoefficients;
+import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -16,7 +18,57 @@ public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(10.1) // kg
             .forwardZeroPowerAcceleration(-33.133379260920165)
-            .lateralZeroPowerAcceleration(-48.819512320288666);
+            .lateralZeroPowerAcceleration(-48.819512320288666)
+            /* TODO - tune PID values: https://pedropathing.com/docs/pathing/tuning/pids
+            * https://www.youtube.com/watch?v=vihb2LPtSK0
+            * if one PID doesnt work then tune secondary PID system.
+             */
+
+            /*
+             * Tune F first:
+             * Find value of F such that you head coil whine but no robot shaking
+             * Give it a high value first like .07 then a low value like .01
+             * Remember to press the "refresh" button on Panels
+             * Slowly search for the position that gives you the loudest coil whine without actually shaking the robot
+             * To test it you can push the robot and see if it shakes at all. if so, it's too high.
+             *
+             * Tune P next:
+             * Find value of P such that it corrects back to its starting position without overcorrecting too much
+             * Place the robot such that it's center is on a known point. Set P to a really high value like 5.
+             * Push the robot laterally and observe if it overcorrects and oscillates. This is too high
+             * Then set P to something super low like 0.1. Notice how the robot, when pushed, doesn't correct at all or it corrects very slow.
+             * Search for a value that corrects quickly without overshoot.
+             *
+             * Tune D next:
+             * D helps the P not overshoot but if D is too high the robot moves too slow
+             * Set D to something super high like 0.2 and watch the robot correct super slow.
+             * Set D to something super low like 0.0001 and watch the robot overshoot
+             * Find the D value such that the robot can move back to its original point quickly but minimizes overshoots.
+             * D SHOULD (might not) be 0.0x
+             *
+             *
+             */
+            .translationalPIDFCoefficients(new PIDFCoefficients(
+                    0,
+                    0,
+                    0,
+                    0
+            ))
+            .headingPIDFCoefficients(new PIDFCoefficients(
+                    0,
+                    0,
+                    0,
+                    0
+            ))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(
+                    0,
+                    0,
+                    0,
+                    0.6,
+                    0
+            ))
+            .centripetalScaling(0)
+            ;
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -40,7 +92,17 @@ public class Constants {
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
+    // TODO - set constraints
+    public static PathConstraints pathConstraints = new PathConstraints(
+            0.995,
+            0.1,
+            0.1,
+            0.009,
+            50,
+            1.25,
+            10,
+            1
+    );
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
