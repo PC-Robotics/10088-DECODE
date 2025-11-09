@@ -8,13 +8,21 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 
 public class Flywheel {
+    public enum FLYWHEEL_STATE {
+        IDLE,
+        SPINNING
+    }
+
     private LinearOpMode opMode;
 
     public DcMotor flywheelLeft;
     public DcMotor flywheelRight;
 
+    public FLYWHEEL_STATE state;
+
     public Flywheel(LinearOpMode opMode) {
         this.opMode = opMode;
+        state = FLYWHEEL_STATE.IDLE;
     }
 
     public void init() {
@@ -28,6 +36,7 @@ public class Flywheel {
     public void spinToSpeed(double power) {
         flywheelLeft.setPower(power);
         flywheelRight.setPower(power);
+        state = FLYWHEEL_STATE.SPINNING;
     }
 
     public void spinToSpeed() {
@@ -37,5 +46,6 @@ public class Flywheel {
     public void stop() {
         flywheelLeft.setPower(0);
         flywheelRight.setPower(0);
+        state = FLYWHEEL_STATE.IDLE;
     }
 }
