@@ -1,4 +1,4 @@
-// to view the path, upload Pedro4BallAutoRed.pp into https://visualizer.pedropathing.com/
+// to view the path, upload Pedro4BallAutoBlue.pp into https://visualizer.pedropathing.com/
 
 package org.firstinspires.ftc.teamcode.opmodes;
 
@@ -22,7 +22,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
 import java.util.Map;
-import java.util.Objects;
 
 
 /* This autonomous routine shoots 4 balls from the red side
@@ -84,24 +83,24 @@ public class Pedro4BallAutoRed extends LinearOpMode {
 
     // paths that we will use (initialized in buildPaths())
     @IgnoreConfigurable
-    private Path scorePreload, score_a1, score_b1, score_c1, moveToLever;
-    @IgnoreConfigurable
-    private PathChain grab_a1, grab_b1, grab_c1;
+    private PathChain scorePreload, score_a1, score_b1, score_c1, moveToLever, grab_a1, grab_b1, grab_c1;
 
     // tracks the current state of our autonomous
-    private int pathState;
+    private AutonomousState pathState = AutonomousState.SCORE_PRELOAD;
 
     // fixed poses. you can check https://visualizer.pedropathing.com/. Center of robot is tracking point
     private static Pose startPose = new Pose(56, 9, Math.toRadians(270));
-    private static Pose scorePose = new Pose(startPose.getX(), 18); // heading is calculated in runOpMode
+    private static Pose scorePose = new Pose(56, 18, Math.toRadians(298));
+    private static Pose row1ApproachPose = new Pose(46, 36, Math.toRadians(180));
+    private static Pose row1ApproachControlPoint = new Pose(56, 36);
+    private static Pose grab_a1_Pose = new Pose(36, 36, Math.toRadians(180));
+    private static Pose grab_b1_Pose = new Pose(31, 36, Math.toRadians(180));
+    private static Pose grab_c1_Pose = new Pose(26, 36, Math.toRadians(180));
     private static Pose leverPose = new Pose(22, 72, Math.toRadians(270));
     
     
     @Override
     public void runOpMode() {
-        // find the angle between the red goal and the shooting position, then flip it because our shooter is on the back
-        scorePose = scorePose.setHeading(Math.toRadians(298));
-
         // initialize all our stuff
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
@@ -137,19 +136,18 @@ public class Pedro4BallAutoRed extends LinearOpMode {
     }
 
 
-
     private void autonomousPathUpdate() {
         switch (pathState) {
-            case 0:
+            case SCORE_PRELOAD:
                 if (robot.flywheel.state == Flywheel.FLYWHEEL_STATE.IDLE) {
                     robot.flywheel.spinToSpeed();
                 }
                 sleep(2000);
                 follower.followPath(scorePreload); // holds position
-                setPathState(1);
+                setPathState(AutonomousState.GRAB_A1);
                 break;
 
-            case 1:
+            case GRAB_A1:
                 if (follower.isBusy()) { // still arriving to point
                     break;
                 }
@@ -160,10 +158,10 @@ public class Pedro4BallAutoRed extends LinearOpMode {
                 robot.flywheel.stop();
 
                 follower.followPath(grab_a1, false);
-                setPathState(2);
+                setPathState(AutonomousState.SCORE_A1);
                 break;
 
-            case 2:
+            case SCORE_A1:
                 if (follower.isBusy()) { // still arriving to point
                     break;
                 }
@@ -174,10 +172,10 @@ public class Pedro4BallAutoRed extends LinearOpMode {
                     robot.flywheel.spinToSpeed();
                 }
                 follower.followPath(score_a1);
-                setPathState(3);
+                setPathState(AutonomousState.GRAB_B1);
                 break;
 
-            case 3:
+            case GRAB_B1:
                 if (follower.isBusy()) { // still arriving to point
                     break;
                 }
@@ -187,10 +185,10 @@ public class Pedro4BallAutoRed extends LinearOpMode {
                 robot.flywheel.stop();
 
                 follower.followPath(grab_b1, false);
-                setPathState(4);
+                setPathState(AutonomousState.SCORE_B1);
                 break;
 
-            case 4:
+            case SCORE_B1:
                 if (follower.isBusy()) { // still arriving to point
                     break;
                 }
@@ -201,10 +199,10 @@ public class Pedro4BallAutoRed extends LinearOpMode {
                     robot.flywheel.spinToSpeed();
                 }
                 follower.followPath(score_b1);
-                setPathState(5);
+                setPathState(AutonomousState.GRAB_C1);
                 break;
 
-            case 5:
+            case GRAB_C1:
                 if (follower.isBusy()) { // still arriving to point
                     break;
                 }
@@ -214,10 +212,10 @@ public class Pedro4BallAutoRed extends LinearOpMode {
                 robot.flywheel.stop();
 
                 follower.followPath(grab_c1, false);
-                setPathState(6);
+                setPathState(AutonomousState.SCORE_C1);
                 break;
 
-            case 6:
+            case SCORE_C1:
                 if (follower.isBusy()) { // still arriving to point
                     break;
                 }
@@ -228,10 +226,10 @@ public class Pedro4BallAutoRed extends LinearOpMode {
                     robot.flywheel.spinToSpeed();
                 }
                 follower.followPath(score_c1);
-                setPathState(7);
+                setPathState(AutonomousState.MOVE_TO_LEVER);
                 break;
 
-            case 7:
+            case MOVE_TO_LEVER:
                 if (follower.isBusy()) { // still arriving to point
                     break;
                 }
@@ -242,45 +240,66 @@ public class Pedro4BallAutoRed extends LinearOpMode {
                 robot.flywheel.stop();
 
                 follower.followPath(moveToLever);
-                setPathState(-1); // default
+                setPathState(AutonomousState.DEFAULT); // default
                 break;
 
-            default:
+            case DEFAULT:
                 break;
         }
     }
 
-    
+
     private void buildPaths() {
         scorePreload = scoreFromPose(startPose);
+        scorePreload = follower.pathBuilder()
+                .addPath(new BezierLine(startPose, scorePose))
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .build();
 
         grab_a1 = follower.pathBuilder()
-                .addPath(approachRow(1))
-                .addPath(getBall("a", 1))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), Math.toRadians(180))
+                .addPath(new BezierCurve(scorePose, row1ApproachControlPoint, row1ApproachPose))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), row1ApproachPose.getHeading())
+                .addPath(new BezierLine(row1ApproachPose, grab_a1_Pose))
+                .setTangentHeadingInterpolation()
                 .build();
 
-        score_a1 = scoreFromPose(grab_a1.endPose());
+        score_a1 = follower.pathBuilder()
+                .addPath(new BezierLine(grab_a1_Pose, scorePose))
+                .setLinearHeadingInterpolation(grab_a1_Pose.getHeading(), scorePose.getHeading())
+                .build();
 
         grab_b1 = follower.pathBuilder()
-                .addPath(approachRow(1))
-                .addPath(getBall("b", 1))
+                .addPath(new BezierCurve(scorePose, row1ApproachControlPoint, row1ApproachPose))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), row1ApproachPose.getHeading())
+                .addPath(new BezierLine(row1ApproachPose, grab_b1_Pose))
+                .setTangentHeadingInterpolation()
                 .build();
 
-        score_b1 = scoreFromPose(grab_b1.endPose());
+        score_b1 = follower.pathBuilder()
+                .addPath(new BezierLine(grab_b1_Pose, scorePose))
+                .setLinearHeadingInterpolation(grab_b1_Pose.getHeading(), scorePose.getHeading())
+                .build();
 
         grab_c1 = follower.pathBuilder()
-                .addPath(approachRow(1))
-                .addPath(getBall("c", 1))
+                .addPath(new BezierCurve(scorePose, row1ApproachControlPoint, row1ApproachPose))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), row1ApproachPose.getHeading())
+                .addPath(new BezierLine(row1ApproachPose, grab_c1_Pose))
+                .setTangentHeadingInterpolation()
                 .build();
 
-        score_c1 = scoreFromPose(grab_c1.endPose());
+        score_c1 = follower.pathBuilder()
+                .addPath(new BezierLine(grab_c1_Pose, scorePose))
+                .setLinearHeadingInterpolation(grab_c1_Pose.getHeading(), scorePose.getHeading())
+                .build();
 
-        moveToLever = new Path(new BezierLine(scorePose, leverPose));
-        moveToLever.setLinearHeadingInterpolation(scorePose.getHeading(), leverPose.getHeading());
+        moveToLever = follower.pathBuilder()
+                .addPath(new Path(new BezierLine(scorePose, leverPose)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), leverPose.getHeading())
+                .build();
     }
 
 
+/* these arent used because i've decided it's easier to originally debug and test with explicit values
     private Path scoreFromPose(Pose start) {
         Path p = new Path(new BezierLine(start, scorePose));
         p.setLinearHeadingInterpolation(start.getHeading(), scorePose.getHeading());
@@ -319,7 +338,7 @@ public class Pedro4BallAutoRed extends LinearOpMode {
 
         return p;
     }
-
+*/
 
     private void validateRow(int row) {
         if (row < 1 || row > 3)
@@ -332,7 +351,7 @@ public class Pedro4BallAutoRed extends LinearOpMode {
     }
 
 
-    public void setPathState(int pathState) {
+    public void setPathState(AutonomousState pathState) {
         this.pathState = pathState;
         pathTimer.resetTimer();
     }
@@ -355,7 +374,15 @@ public class Pedro4BallAutoRed extends LinearOpMode {
         }
     }
 
-
-
-
+    public enum AutonomousState {
+        SCORE_PRELOAD,
+        GRAB_A1,
+        SCORE_A1,
+        GRAB_B1,
+        SCORE_B1,
+        GRAB_C1,
+        SCORE_C1,
+        MOVE_TO_LEVER,
+        DEFAULT
+    }
 }
