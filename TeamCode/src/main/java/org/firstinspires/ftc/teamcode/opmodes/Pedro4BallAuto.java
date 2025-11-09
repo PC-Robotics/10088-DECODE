@@ -17,6 +17,7 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
@@ -24,7 +25,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 import java.util.Map;
 
 
-/* This autonomous routine shoots 4 balls from the red side
+/* This autonomous routine shoots 4 balls
  * starting position: Robot intake against the back wall, right edge of robot on the tape such that both wheels are in the triangle
  * Preload: 1 ball
  * Steps to autonomous:
@@ -39,10 +40,10 @@ import java.util.Map;
  *
  * NOTE: This autonomous uses PedroPathing, an extension of RoadRunner. Learn about PedroPathing here:https://pedropathing.com/docs/pathing
  */
-@Autonomous(name = "Pedro 4 Ball (Red Side)", group = "Main", preselectTeleOp = "MainTeleop")
+@Autonomous(name = "Pedro 4 Ball", group = "Main", preselectTeleOp = "MainTeleop")
 @Configurable // required for Panels (Dashboard so you can see stuff while the robot is running)
 @SuppressWarnings("FieldMayBeFinal") // SILENCE PUNY WARNINGS
-public class Pedro4BallAutoRed extends LinearOpMode {
+public class Pedro4BallAuto extends LinearOpMode {
     @IgnoreConfigurable
     private Robot robot = new Robot(this); // robot object
     /* ball naming scheme
@@ -97,22 +98,42 @@ public class Pedro4BallAutoRed extends LinearOpMode {
     private static Pose grab_b1_Pose = new Pose(31, 36, Math.toRadians(180));
     private static Pose grab_c1_Pose = new Pose(26, 36, Math.toRadians(180));
     private static Pose leverPose = new Pose(22, 72, Math.toRadians(270));
-    
-    
+
+    private Alliance alliance = Alliance.BLUE;
+
     @Override
     public void runOpMode() {
         // initialize all our stuff
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.createFollower(hardwareMap);
-        buildPaths(); // pre-build paths so we don't waste runtime
-        follower.setStartingPose(startPose);
         robot.init();
 
         log("Status", "Initialized");
         telemetry.update();
 
-        waitForStart(); // waits for the user to press play
+        gamepad1.rumble(500); // reminder to set alliance team
+        while (opModeInInit()) {
+            if (gamepad1.left_bumper) {
+                alliance = Alliance.BLUE;
+            } else if (gamepad1.right_bumper) {
+                alliance = Alliance.RED;
+            }
+
+            log("Select", "Alliance");
+            log("Left Bumper", "Blue Alliance");
+            log("Right Bumper", "Red Alliance");
+            log("---", "---");
+            log("Current Alliance Selection", alliance.toString());
+            telemetry.update();
+        }
+
+        waitForStart();
+
+        // necessary to do here because now we know the alliance colors
+        buildPaths();
+        follower.setStartingPose(startPose);
+
         // set timers to 0 now that we have begun
         pathTimer.resetTimer();
         opmodeTimer.resetTimer();
@@ -131,6 +152,8 @@ public class Pedro4BallAutoRed extends LinearOpMode {
             log("X", currentPose.getX());
             log("Y", currentPose.getY());
             log("Heading", currentPose.getHeading());
+            log("State", pathState.toString());
+            log("Alliance", alliance.toString());
             telemetry.update();
         }
     }
@@ -250,7 +273,18 @@ public class Pedro4BallAutoRed extends LinearOpMode {
 
 
     private void buildPaths() {
-        scorePreload = scoreFromPose(startPose);
+        // flipping poses for alliances
+        if (alliance == Alliance.RED) {
+            startPose = startPose.mirror();
+            scorePose = scorePose.mirror();
+            row1ApproachPose = row1ApproachPose.mirror();
+            row1ApproachControlPoint = row1ApproachControlPoint.mirror();
+            grab_a1_Pose = grab_a1_Pose.mirror();
+            grab_b1_Pose = grab_b1_Pose.mirror();
+            grab_c1_Pose = grab_c1_Pose.mirror();
+            leverPose = leverPose.mirror();
+        }
+
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
