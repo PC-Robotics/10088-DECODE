@@ -1,3 +1,5 @@
+// to view the path, upload Pedro4BallAutoRed.pp into https://visualizer.pedropathing.com/
+
 package org.firstinspires.ftc.teamcode.opmodes;
 
 
