@@ -1,13 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import static org.firstinspires.ftc.teamcode.Utility.applyDeadzone;
-import static org.firstinspires.ftc.teamcode.Utility.clamp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.Settings;
 
@@ -45,22 +41,15 @@ public class MainTeleop extends LinearOpMode {
     public void runOpMode() {
         robot.init();
         waitForStart();
-        robot.imu.resetYaw();
 
         startingPositions();
 
         while (opModeIsActive()) { // hi
-            if (gamepad1.options) {
-                robot.imu.resetYaw();
-            }
 
             readController();
             readSensors();
 
             robot.driveBase.mecanumDrive(straight, strafe, turn, gamepad1.left_bumper);
-            if (gamepad1.dpad_up) {
-                robot.turnToShoot();
-            }
             flywheelControl();
             intakeControl();
 
@@ -82,15 +71,10 @@ public class MainTeleop extends LinearOpMode {
         gamepad2LeftTrigger = applyDeadzone(gamepad2.left_trigger, Settings.DEADZONE_THRESHOLD);
         gamepad2RightTrigger = applyDeadzone(gamepad2.right_trigger, Settings.DEADZONE_THRESHOLD);
         gamepad2RightJoystickY = -applyDeadzone(gamepad2.right_stick_y, Settings.DEADZONE_THRESHOLD);
-
-
-        if (gamepad1.options) {
-            robot.imu.resetYaw();
-        }
     }
 
     private void readSensors() {
-        heading = robot.imu.getHeading(AngleUnit.RADIANS);
+
     }
 
 
@@ -117,7 +101,6 @@ public class MainTeleop extends LinearOpMode {
         // robot.intake.telemetry();
 
         telemetry.addData("DRIVE BASE", "-----------");
-        robot.imu.telemetry();
         robot.driveBase.telemetry();
 
         telemetry.update();
