@@ -7,7 +7,6 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.configurables.annotations.IgnoreConfigurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
-import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -19,7 +18,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
 import java.util.Map;
@@ -56,25 +54,7 @@ public class Pedro4BallAuto extends LinearOpMode {
 
     a1 is closest to small triangle
     */
-
-    // converts column names (a, b, c) to numbers for the program (1, 2, 3)
-    private static final Map<String, Integer> COLUMN_TO_NUMBER = Map.of(
-            "a", 1,
-            "b", 2,
-            "c", 3
-    );
-
-    private static final int ballDiameter = 5; // inches
-    private static final int BallA_XPosition = 36; // inches from the left wall
-    private static int OffsetFromBallA_XPosition = 10; // how far should the the front of the robot be from the first ball? (inches)
-
-    private static final int Ball1_YPosition = 36; // inches from the back wall
-    private static final int BallRowOffset = 24; // inches between rows of balls
-
-
     // PEDRO STUFF
-    @IgnoreConfigurable
-    private Follower follower; // our main robot object in Pedro Pathing
     @IgnoreConfigurable
     private TelemetryManager panelsTelemetry; // telemetry for Panels
     @IgnoreConfigurable
@@ -87,52 +67,51 @@ public class Pedro4BallAuto extends LinearOpMode {
     private PathChain scorePreload, score_a1, score_b1, score_c1, moveToLever, grab_a1, grab_b1, grab_c1;
 
     // tracks the current state of our autonomous
-    private AutonomousState pathState = AutonomousState.SCORE_PRELOAD;
+    private AutonomousState state = AutonomousState.SCORE_PRELOAD;
 
     // fixed poses. you can check https://visualizer.pedropathing.com/. Center of robot is tracking point
     private static Pose startPose = new Pose(56, 9, Math.toRadians(270));
-    private static Pose scorePose = new Pose(56, 18, Math.toRadians(298));
     private static Pose row1ApproachPose = new Pose(46, 36, Math.toRadians(180));
     private static Pose row1ApproachControlPoint = new Pose(56, 36);
     private static Pose grab_a1_Pose = new Pose(36, 36, Math.toRadians(180));
     private static Pose grab_b1_Pose = new Pose(31, 36, Math.toRadians(180));
     private static Pose grab_c1_Pose = new Pose(26, 36, Math.toRadians(180));
-    private static Pose leverPose = new Pose(22, 72, Math.toRadians(270));
+    public static Pose leverPose = new Pose(22, 72, Math.toRadians(270));
 
-    private Alliance alliance = Alliance.BLUE;
 
     @Override
     public void runOpMode() {
         // initialize all our stuff
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-
-        follower = Constants.createFollower(hardwareMap);
         robot.init();
 
         log("Status", "Initialized");
         telemetry.update();
 
+        Alliance a = Alliance.BLUE;
         gamepad1.rumble(500); // reminder to set alliance team
         while (opModeInInit()) {
-            if (gamepad1.left_bumper) {
-                alliance = Alliance.BLUE;
-            } else if (gamepad1.right_bumper) {
-                alliance = Alliance.RED;
+            if (gamepad1.leftBumperWasPressed()) {
+                a = Alliance.BLUE;
+            } else if (gamepad1.rightBumperWasPressed()) {
+                a = Alliance.RED;
             }
 
             log("Select", "Alliance");
             log("Left Bumper", "Blue Alliance");
             log("Right Bumper", "Red Alliance");
             log("---", "---");
-            log("Current Alliance Selection", alliance.toString());
+            log("Current Alliance Selection", a.toString());
             telemetry.update();
         }
 
         waitForStart();
 
         // necessary to do here because now we know the alliance colors
+        robot.setAlliance(a);
+        mirrorPoses();
         buildPaths();
-        follower.setStartingPose(startPose);
+        robot.follower.setStartingPose(startPose);
 
         // set timers to 0 now that we have begun
         pathTimer.resetTimer();
@@ -140,38 +119,37 @@ public class Pedro4BallAuto extends LinearOpMode {
 
         // this is our main loop which will run over and over again until the user presses stop
         while (opModeIsActive()) {
-            follower.update(); // update Pedro Pathing's robot
+            robot.update(); // update Pedro Pathing's robot
             panelsTelemetry.update();
-            currentPose = follower.getPose(); // grab our current pose
 
             // update the FSM
             autonomousPathUpdate();
 
             // log values to both the Control Hub logger and to Panels logger
             log("Time", opmodeTimer.getElapsedTimeSeconds());
-            log("X", currentPose.getX());
-            log("Y", currentPose.getY());
-            log("Heading", currentPose.getHeading());
-            log("State", pathState.toString());
-            log("Alliance", alliance.toString());
+            log("X", robot.currentPose.getX());
+            log("Y", robot.currentPose.getY());
+            log("Heading", robot.currentPose.getHeading());
+            log("State", state.toString());
+            log("Alliance", robot.alliance.toString());
             telemetry.update();
         }
     }
 
 
     private void autonomousPathUpdate() {
-        switch (pathState) {
+        switch (state) {
             case SCORE_PRELOAD:
                 if (robot.flywheel.state == Flywheel.FLYWHEEL_STATE.IDLE) {
                     robot.flywheel.spinToSpeed();
                 }
                 sleep(2000);
-                follower.followPath(scorePreload); // holds position
-                setPathState(AutonomousState.GRAB_A1);
+                robot.follower.followPath(scorePreload); // holds position
+                setState(AutonomousState.GRAB_A1);
                 break;
 
             case GRAB_A1:
-                if (follower.isBusy()) { // still arriving to point
+                if (robot.follower.isBusy()) { // still arriving to point
                     break;
                 }
 
@@ -180,12 +158,12 @@ public class Pedro4BallAuto extends LinearOpMode {
                 sleep(500);
                 robot.flywheel.stop();
 
-                follower.followPath(grab_a1, false);
-                setPathState(AutonomousState.SCORE_A1);
+                robot.follower.followPath(grab_a1, false);
+                setState(AutonomousState.SCORE_A1);
                 break;
 
             case SCORE_A1:
-                if (follower.isBusy()) { // still arriving to point
+                if (robot.follower.isBusy()) { // still arriving to point
                     break;
                 }
 
@@ -194,12 +172,12 @@ public class Pedro4BallAuto extends LinearOpMode {
                 if (robot.flywheel.state == Flywheel.FLYWHEEL_STATE.IDLE) {
                     robot.flywheel.spinToSpeed();
                 }
-                follower.followPath(score_a1);
-                setPathState(AutonomousState.GRAB_B1);
+                robot.follower.followPath(score_a1);
+                setState(AutonomousState.GRAB_B1);
                 break;
 
             case GRAB_B1:
-                if (follower.isBusy()) { // still arriving to point
+                if (robot.follower.isBusy()) { // still arriving to point
                     break;
                 }
 
@@ -207,12 +185,12 @@ public class Pedro4BallAuto extends LinearOpMode {
                 sleep(500);
                 robot.flywheel.stop();
 
-                follower.followPath(grab_b1, false);
-                setPathState(AutonomousState.SCORE_B1);
+                robot.follower.followPath(grab_b1, false);
+                setState(AutonomousState.SCORE_B1);
                 break;
 
             case SCORE_B1:
-                if (follower.isBusy()) { // still arriving to point
+                if (robot.follower.isBusy()) { // still arriving to point
                     break;
                 }
 
@@ -221,12 +199,12 @@ public class Pedro4BallAuto extends LinearOpMode {
                 if (robot.flywheel.state == Flywheel.FLYWHEEL_STATE.IDLE) {
                     robot.flywheel.spinToSpeed();
                 }
-                follower.followPath(score_b1);
-                setPathState(AutonomousState.GRAB_C1);
+                robot.follower.followPath(score_b1);
+                setState(AutonomousState.GRAB_C1);
                 break;
 
             case GRAB_C1:
-                if (follower.isBusy()) { // still arriving to point
+                if (robot.follower.isBusy()) { // still arriving to point
                     break;
                 }
 
@@ -234,12 +212,12 @@ public class Pedro4BallAuto extends LinearOpMode {
                 sleep(500);
                 robot.flywheel.stop();
 
-                follower.followPath(grab_c1, false);
-                setPathState(AutonomousState.SCORE_C1);
+                robot.follower.followPath(grab_c1, false);
+                setState(AutonomousState.SCORE_C1);
                 break;
 
             case SCORE_C1:
-                if (follower.isBusy()) { // still arriving to point
+                if (robot.follower.isBusy()) { // still arriving to point
                     break;
                 }
 
@@ -248,12 +226,12 @@ public class Pedro4BallAuto extends LinearOpMode {
                 if (robot.flywheel.state == Flywheel.FLYWHEEL_STATE.IDLE) {
                     robot.flywheel.spinToSpeed();
                 }
-                follower.followPath(score_c1);
-                setPathState(AutonomousState.MOVE_TO_LEVER);
+                robot.follower.followPath(score_c1);
+                setState(AutonomousState.MOVE_TO_LEVER);
                 break;
 
             case MOVE_TO_LEVER:
-                if (follower.isBusy()) { // still arriving to point
+                if (robot.follower.isBusy()) { // still arriving to point
                     break;
                 }
 
@@ -262,8 +240,8 @@ public class Pedro4BallAuto extends LinearOpMode {
                 robot.intake.stop();
                 robot.flywheel.stop();
 
-                follower.followPath(moveToLever);
-                setPathState(AutonomousState.DEFAULT); // default
+                robot.follower.followPath(moveToLever);
+                setState(AutonomousState.DEFAULT); // default
                 break;
 
             case DEFAULT:
@@ -272,11 +250,10 @@ public class Pedro4BallAuto extends LinearOpMode {
     }
 
 
-    private void buildPaths() {
+    private void mirrorPoses() {
         // flipping poses for alliances
-        if (alliance == Alliance.RED) {
+        if (robot.alliance == Alliance.RED) {
             startPose = startPose.mirror();
-            scorePose = scorePose.mirror();
             row1ApproachPose = row1ApproachPose.mirror();
             row1ApproachControlPoint = row1ApproachControlPoint.mirror();
             grab_a1_Pose = grab_a1_Pose.mirror();
@@ -284,109 +261,60 @@ public class Pedro4BallAuto extends LinearOpMode {
             grab_c1_Pose = grab_c1_Pose.mirror();
             leverPose = leverPose.mirror();
         }
+    }
 
-        scorePreload = follower.pathBuilder()
-                .addPath(new BezierLine(startPose, scorePose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+
+    private void buildPaths() {
+        scorePreload = robot.follower.pathBuilder()
+                .addPath(new BezierLine(startPose, Robot.scorePose))
+                .setLinearHeadingInterpolation(startPose.getHeading(), Robot.scorePose.getHeading())
                 .build();
 
-        grab_a1 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePose, row1ApproachControlPoint, row1ApproachPose))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), row1ApproachPose.getHeading())
+        grab_a1 = robot.follower.pathBuilder()
+                .addPath(new BezierCurve(Robot.scorePose, row1ApproachControlPoint, row1ApproachPose))
+                .setLinearHeadingInterpolation(Robot.scorePose.getHeading(), row1ApproachPose.getHeading())
                 .addPath(new BezierLine(row1ApproachPose, grab_a1_Pose))
                 .setTangentHeadingInterpolation()
                 .build();
 
-        score_a1 = follower.pathBuilder()
-                .addPath(new BezierLine(grab_a1_Pose, scorePose))
-                .setLinearHeadingInterpolation(grab_a1_Pose.getHeading(), scorePose.getHeading())
+        score_a1 = robot.follower.pathBuilder()
+                .addPath(new BezierLine(grab_a1_Pose, Robot.scorePose))
+                .setLinearHeadingInterpolation(grab_a1_Pose.getHeading(), Robot.scorePose.getHeading())
                 .build();
 
-        grab_b1 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePose, row1ApproachControlPoint, row1ApproachPose))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), row1ApproachPose.getHeading())
+        grab_b1 = robot.follower.pathBuilder()
+                .addPath(new BezierCurve(Robot.scorePose, row1ApproachControlPoint, row1ApproachPose))
+                .setLinearHeadingInterpolation(Robot.scorePose.getHeading(), row1ApproachPose.getHeading())
                 .addPath(new BezierLine(row1ApproachPose, grab_b1_Pose))
                 .setTangentHeadingInterpolation()
                 .build();
 
-        score_b1 = follower.pathBuilder()
-                .addPath(new BezierLine(grab_b1_Pose, scorePose))
-                .setLinearHeadingInterpolation(grab_b1_Pose.getHeading(), scorePose.getHeading())
+        score_b1 = robot.follower.pathBuilder()
+                .addPath(new BezierLine(grab_b1_Pose, Robot.scorePose))
+                .setLinearHeadingInterpolation(grab_b1_Pose.getHeading(), Robot.scorePose.getHeading())
                 .build();
 
-        grab_c1 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePose, row1ApproachControlPoint, row1ApproachPose))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), row1ApproachPose.getHeading())
+        grab_c1 = robot.follower.pathBuilder()
+                .addPath(new BezierCurve(Robot.scorePose, row1ApproachControlPoint, row1ApproachPose))
+                .setLinearHeadingInterpolation(Robot.scorePose.getHeading(), row1ApproachPose.getHeading())
                 .addPath(new BezierLine(row1ApproachPose, grab_c1_Pose))
                 .setTangentHeadingInterpolation()
                 .build();
 
-        score_c1 = follower.pathBuilder()
-                .addPath(new BezierLine(grab_c1_Pose, scorePose))
-                .setLinearHeadingInterpolation(grab_c1_Pose.getHeading(), scorePose.getHeading())
+        score_c1 = robot.follower.pathBuilder()
+                .addPath(new BezierLine(grab_c1_Pose, Robot.scorePose))
+                .setLinearHeadingInterpolation(grab_c1_Pose.getHeading(), Robot.scorePose.getHeading())
                 .build();
 
-        moveToLever = follower.pathBuilder()
-                .addPath(new Path(new BezierLine(scorePose, leverPose)))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), leverPose.getHeading())
+        moveToLever = robot.follower.pathBuilder()
+                .addPath(new Path(new BezierLine(Robot.scorePose, leverPose)))
+                .setLinearHeadingInterpolation(Robot.scorePose.getHeading(), leverPose.getHeading())
                 .build();
     }
 
 
-/* these arent used because i've decided it's easier to originally debug and test with explicit values
-    private Path scoreFromPose(Pose start) {
-        Path p = new Path(new BezierLine(start, scorePose));
-        p.setLinearHeadingInterpolation(start.getHeading(), scorePose.getHeading());
-        return p;
-    }
-
-    private Path approachRow(int row) {
-        validateRow(row);
-
-        int rowYPosition = Ball1_YPosition + (BallRowOffset * (row - 1));
-
-        Path p = new Path(new BezierCurve(
-                scorePose,
-                new Pose(scorePose.getX(), rowYPosition),
-                new Pose(BallA_XPosition + OffsetFromBallA_XPosition, rowYPosition)
-
-        ));
-        p.setLinearHeadingInterpolation(scorePose.getHeading(), Math.toRadians(180));
-
-        return p;
-    }
-
-    private Path getBall(String col, int row) {
-        validateRow(row);
-        validateCol(col);
-
-        int rowYPosition = Ball1_YPosition + (BallRowOffset * (row - 1));
-        int colXPosition = BallA_XPosition - (ballDiameter * (Objects.requireNonNull(COLUMN_TO_NUMBER.get(col)) - 1)); // SILENCE PUNY NPE WARNINGS
-
-
-        Path p = new Path(new BezierLine(
-                new Pose(BallA_XPosition + OffsetFromBallA_XPosition, rowYPosition),
-                new Pose(colXPosition, rowYPosition))
-        );
-        p.setTangentHeadingInterpolation();
-
-        return p;
-    }
-*/
-
-    private void validateRow(int row) {
-        if (row < 1 || row > 3)
-            throw new IllegalArgumentException("Row " + row + " is not valid.");
-    }
-
-    private void validateCol(String col) {
-        if (!COLUMN_TO_NUMBER.containsKey(col))
-            throw new IllegalArgumentException("Column " + col + " is not valid.");
-    }
-
-
-    public void setPathState(AutonomousState pathState) {
-        this.pathState = pathState;
+    public void setState(AutonomousState state) {
+        this.state = state;
         pathTimer.resetTimer();
     }
 

@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.DriveBase;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -27,12 +31,20 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
  *          0: linearSlide
  */
 public class Robot {
-    private LinearOpMode myOpMode = null;   // gain access to methods in the calling OpMode.
-    public ElapsedTime timer = new ElapsedTime();
+    private LinearOpMode myOpMode;   // gain access to methods in the calling OpMode.
+    private final Timer loopTimer;
 
     public DriveBase driveBase;
     public Intake intake;
     public Flywheel flywheel;
+
+    // pedro
+    public Follower follower;
+    public Alliance alliance = Alliance.BLUE;
+
+    public Pose currentPose;
+    public static Pose endPose; // static variables are saved between auto and teleop so this variable helps us do that
+    public static Pose scorePose = new Pose(56, 18, Math.toRadians(298));
 
     // Define a constructor that allows the OpMode to pass a reference to itself.
     public Robot(LinearOpMode opMode) {
@@ -40,6 +52,10 @@ public class Robot {
         driveBase = new DriveBase(myOpMode);
         intake = new Intake(myOpMode);
         flywheel = new Flywheel(myOpMode);
+        follower = Constants.createFollower(opMode.hardwareMap);
+        loopTimer = new Timer();
+
+        loopTimer.resetTimer();
     }
 
     // initialize (main function)
@@ -47,5 +63,22 @@ public class Robot {
         driveBase.init();
         intake.init();
         flywheel.init();
+    }
+
+    public void update() {
+        follower.update();
+        currentPose = follower.getPose();
+    }
+
+    public void stop() {
+        endPose = follower.getPose();
+    }
+
+    public void setAlliance(Alliance alliance) {
+        if (this.alliance != alliance) {
+            scorePose = scorePose.mirror();
+        }
+
+        this.alliance = alliance;
     }
 }
