@@ -15,6 +15,12 @@ import org.firstinspires.ftc.teamcode.Settings;
 public class Intake implements Subsystem {
     private LinearOpMode opMode;
     public DcMotorEx intake;
+    // note that the REV Color Sensor v3 has both a color sensor and an IR proximity sensor in the same package
+    public NormalizedColorSensor colorSensor;
+    public DistanceSensor distanceSensor;
+
+    NormalizedRGBA colors;
+    public float[] hsvValues = {0F, 0F, 0F};
 
     public DcMotor intake;
 
@@ -25,8 +31,9 @@ public class Intake implements Subsystem {
     @Override
     public void init() {
         intake = motorInit(opMode.hardwareMap, "intake", DcMotorSimple.Direction.REVERSE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        colorSensor = opMode.hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
+        distanceSensor = opMode.hardwareMap.get(DistanceSensor.class, "colorSensor");
     }
 
     public void intake() {
@@ -50,12 +57,12 @@ public class Intake implements Subsystem {
         intake.setPower(0);
     }
 
-    public void telemetry() {
-        opMode.telemetry.addData("Intake Moving", intake.getPower() != 0);
     @Override
     public String[] getTelemetry() {
         return new String[] {
                 "Intake Power: " + intake.getPower(),
+                "R: " + colors.red + " G: " + colors.green + " B: " + colors.blue + " A: " + colors.alpha,
+                "Ball Detected: " + (detectingBall ? "yes" : "no")
         };
     }
 }
