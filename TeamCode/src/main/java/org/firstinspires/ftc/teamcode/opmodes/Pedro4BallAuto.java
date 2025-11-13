@@ -20,8 +20,6 @@ import org.firstinspires.ftc.teamcode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
-import java.util.Map;
-
 
 /* This autonomous routine shoots 4 balls
  * starting position: Robot intake against the back wall, right edge of robot on the tape such that both wheels are in the triangle
@@ -56,9 +54,9 @@ public class Pedro4BallAuto extends LinearOpMode {
     */
     // PEDRO STUFF
     @IgnoreConfigurable
-    private TelemetryManager panelsTelemetry; // telemetry for Panels
+    private TelemetryManager panelsTelemetry;
+
     @IgnoreConfigurable
-    private Pose currentPose; // current position (called a Pose which is x, y, and heading)
     private final Timer pathTimer = new Timer(); // timer that resets every time we move to a new action
     private final Timer opmodeTimer = new Timer(); // timer that runs the entire match
 
@@ -85,8 +83,8 @@ public class Pedro4BallAuto extends LinearOpMode {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         robot.init();
 
-        log("Status", "Initialized");
-        telemetry.update();
+        panelsTelemetry.addData("Status", "Initialized");
+        panelsTelemetry.update(telemetry);
 
         Alliance a = Alliance.BLUE;
         gamepad1.rumble(500); // reminder to set alliance team
@@ -97,12 +95,14 @@ public class Pedro4BallAuto extends LinearOpMode {
                 a = Alliance.RED;
             }
 
-            log("Select", "Alliance");
-            log("Left Bumper", "Blue Alliance");
-            log("Right Bumper", "Red Alliance");
-            log("---", "---");
-            log("Current Alliance Selection", a.toString());
-            telemetry.update();
+            panelsTelemetry.debug(
+                    "Select Alliance",
+                    "Left Bumper: Blue Alliance",
+                    "Right Bumper: Red Alliance",
+                    " ------------------------- ",
+                    "Current Alliance: " + a.toString()
+            );
+            panelsTelemetry.update(telemetry);
         }
 
         waitForStart();
@@ -120,19 +120,21 @@ public class Pedro4BallAuto extends LinearOpMode {
         // this is our main loop which will run over and over again until the user presses stop
         while (opModeIsActive()) {
             robot.update(); // update Pedro Pathing's robot
-            panelsTelemetry.update();
+            telemetry.update();
 
             // update the FSM
             autonomousPathUpdate();
 
             // log values to both the Control Hub logger and to Panels logger
-            log("Time", opmodeTimer.getElapsedTimeSeconds());
-            log("X", robot.currentPose.getX());
-            log("Y", robot.currentPose.getY());
-            log("Heading", robot.currentPose.getHeading());
-            log("State", state.toString());
-            log("Alliance", robot.alliance.toString());
-            telemetry.update();
+            panelsTelemetry.debug(
+                    "Time: " + opmodeTimer.getElapsedTimeSeconds(),
+                    "X: " + robot.currentPose.getX(),
+                    "Y: " + robot.currentPose.getY(),
+                    "Heading: " + robot.currentPose.getHeading(),
+                    "State: " + state.toString(),
+                    "Alliance: " + Robot.alliance.toString()
+            );
+            panelsTelemetry.update(telemetry);
         }
     }
 
@@ -252,7 +254,7 @@ public class Pedro4BallAuto extends LinearOpMode {
 
     private void mirrorPoses() {
         // flipping poses for alliances
-        if (robot.alliance == Alliance.RED) {
+        if (Robot.alliance == Alliance.RED) {
             startPose = startPose.mirror();
             row1ApproachPose = row1ApproachPose.mirror();
             row1ApproachControlPoint = row1ApproachControlPoint.mirror();
@@ -316,24 +318,6 @@ public class Pedro4BallAuto extends LinearOpMode {
     public void setState(AutonomousState state) {
         this.state = state;
         pathTimer.resetTimer();
-    }
-
-
-    // found in https://pedropathing.com/docs/pathing/examples/apriltagpatternauto
-    // Custom logging function to support telemetry and Panels
-    private void log(String caption, Object... text) {
-        if (text.length == 1) {
-            telemetry.addData(caption, text[0]);
-            panelsTelemetry.debug(caption + ": " + text[0]);
-        } else if (text.length >= 2) {
-            StringBuilder message = new StringBuilder();
-            for (int i = 0; i < text.length; i++) {
-                message.append(text[i]);
-                if (i < text.length - 1) message.append(" ");
-            }
-            telemetry.addData(caption, message.toString());
-            panelsTelemetry.debug(caption + ": " + message);
-        }
     }
 
     public enum AutonomousState {
