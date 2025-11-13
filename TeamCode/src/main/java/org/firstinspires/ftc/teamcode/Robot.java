@@ -32,7 +32,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
  */
 public class Robot {
     private LinearOpMode myOpMode;   // gain access to methods in the calling OpMode.
-    private final Timer loopTimer;
 
     public DriveBase driveBase;
     public Intake intake;
@@ -40,7 +39,7 @@ public class Robot {
 
     // pedro
     public Follower follower;
-    public Alliance alliance = Alliance.BLUE;
+    public static Alliance alliance = Alliance.BLUE;
 
     public Pose currentPose;
     public static Pose endPose; // static variables are saved between auto and teleop so this variable helps us do that
@@ -53,9 +52,8 @@ public class Robot {
         intake = new Intake(myOpMode);
         flywheel = new Flywheel(myOpMode);
         follower = Constants.createFollower(opMode.hardwareMap);
-        loopTimer = new Timer();
-
-        loopTimer.resetTimer();
+        currentPose = null;
+        endPose = null;
     }
 
     // initialize (main function)
@@ -75,10 +73,23 @@ public class Robot {
     }
 
     public void setAlliance(Alliance alliance) {
-        if (this.alliance != alliance) {
+        if (Robot.alliance != alliance) {
             scorePose = scorePose.mirror();
         }
 
-        this.alliance = alliance;
+        Robot.alliance = alliance;
+    }
+
+    /*
+     * if flywheel is spinning, then yes
+     * if flywheel is not spinning and no ball detected, then yes
+     * if flywheel is not spinning and ball detected then no
+     */
+    public boolean canIntake() {
+        if (flywheel.state == Flywheel.FLYWHEEL_STATE.SPINNING) {
+            return true;
+        } else {
+            return !intake.detectingBall;
+        }
     }
 }
