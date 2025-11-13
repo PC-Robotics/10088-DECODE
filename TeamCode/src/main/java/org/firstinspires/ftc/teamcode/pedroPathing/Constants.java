@@ -52,7 +52,7 @@ public class Constants {
                     0,
                     0,
                     0,
-                    0
+                    0.06
             ))
             .headingPIDFCoefficients(new PIDFCoefficients(
                     0,
@@ -84,13 +84,13 @@ public class Constants {
             .yVelocity(50.71566460076281);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-5.98)
+            .forwardPodY(5.98)
             .strafePodX(-6.92)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
     // TODO - set constraints
     public static PathConstraints pathConstraints = new PathConstraints(
