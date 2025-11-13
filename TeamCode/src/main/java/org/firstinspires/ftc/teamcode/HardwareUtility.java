@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -16,19 +18,19 @@ public class HardwareUtility {
     }
 
     /**
-     * Initializes a DcMotor with the specified parameters.
+     * Initializes a DcMotorEx with the specified parameters.
      *
      * @param hardwareMap Hardware map to access robot configuration
      * @param name        Name of the motor in the hardware map
      * @param direction   Direction for the motor
-     * @return Configured DcMotor instance
+     * @return Configured DcMotorEx instance
      */
-    public static DcMotor motorInit(HardwareMap hardwareMap, String name, DcMotor.Direction direction) {
-        DcMotor motor = hardwareMap.get(DcMotor.class, name);
+    public static DcMotorEx motorInit(HardwareMap hardwareMap, String name, DcMotorSimple.Direction direction) {
+        DcMotorEx motor = hardwareMap.get(DcMotorEx.class, name);
         motor.setDirection(direction);
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         return motor;
     }
 

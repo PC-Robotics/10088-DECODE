@@ -4,10 +4,11 @@ import static org.firstinspires.ftc.teamcode.HardwareUtility.motorInit;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 
-public class Flywheel {
+public class Flywheel implements Subsystem {
     public enum FLYWHEEL_STATE {
         IDLE,
         SPINNING
@@ -15,8 +16,8 @@ public class Flywheel {
 
     private LinearOpMode opMode;
 
-    public DcMotor flywheelLeft;
-    public DcMotor flywheelRight;
+    public DcMotorEx flywheelLeft;
+    public DcMotorEx flywheelRight;
 
     public FLYWHEEL_STATE state;
 
@@ -25,12 +26,13 @@ public class Flywheel {
         state = FLYWHEEL_STATE.IDLE;
     }
 
+    @Override
     public void init() {
         flywheelLeft = motorInit(opMode.hardwareMap, "flywheelleft", DcMotorSimple.Direction.REVERSE);
         flywheelRight = motorInit(opMode.hardwareMap, "flywheelright", DcMotorSimple.Direction.FORWARD);
 
-        flywheelLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        flywheelRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        flywheelLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        flywheelRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
     }
 
     public void spinToSpeed(double power) {
@@ -43,9 +45,18 @@ public class Flywheel {
         spinToSpeed(.65);
     }
 
+    @Override
     public void stop() {
         flywheelLeft.setPower(0);
         flywheelRight.setPower(0);
         state = FLYWHEEL_STATE.IDLE;
+    }
+
+    @Override
+    public String[] getTelemetry() {
+        return new String[] {
+                "Flywheel State: " + state.toString(),
+                "Flywheel Power: " + (flywheelLeft.getPower() + flywheelRight.getPower())/2.0
+        };
     }
 }
