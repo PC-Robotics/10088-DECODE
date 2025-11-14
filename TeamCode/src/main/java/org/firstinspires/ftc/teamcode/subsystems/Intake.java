@@ -1,22 +1,15 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.HardwareUtility.CRServoInit;
 import static org.firstinspires.ftc.teamcode.HardwareUtility.motorInit;
 
 import android.graphics.Color;
 
-import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorImpl;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-
-import org.firstinspires.ftc.teamcode.Settings;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -28,7 +21,7 @@ public class Intake implements Subsystem {
     public NormalizedColorSensor colorSensor;
     public DistanceSensor distanceSensor;
 
-    public boolean usingColorSensor = false;
+    private static final boolean usingColorSensor = false;
 
     NormalizedRGBA colors;
     public float[] hsvValues = {0F, 0F, 0F};
@@ -94,7 +87,7 @@ public class Intake implements Subsystem {
     @Override
     public String[] getTelemetry() {
         String[] colorArr;
-        if (usingColorSensor) {
+        if (usingColorSensor && colors != null) {
             colorArr = new String[]{
                     "R: " + colors.red + " G: " + colors.green + " B: " + colors.blue + " A: " + colors.alpha,
                     "Ball Detected: " + (detectingBall ? "yes" : "no")

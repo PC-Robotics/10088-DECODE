@@ -57,6 +57,7 @@ public class MainTeleop extends LinearOpMode {
 
         double angleOffset = Robot.alliance == Alliance.BLUE ? 0 : Math.toRadians(180);
         while (opModeIsActive()) { // hi
+            robot.update();
 
             readController();
 
@@ -121,6 +122,7 @@ public class MainTeleop extends LinearOpMode {
 
 
     private void reloadTelemetry() {
-        return;
+        panelsTelemetry.debug(robot.intake.getTelemetry());
+        panelsTelemetry.update(telemetry);
     }
 }
