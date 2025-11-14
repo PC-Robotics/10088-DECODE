@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import static org.firstinspires.ftc.teamcode.HardwareUtility.motorInit;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -14,16 +13,27 @@ public class Flywheel implements Subsystem {
         SPINNING
     }
 
+    public enum FLYWHEEL_SPIN_POSITION {
+        CLOSE(0.60),
+        FAR(0.95);
+
+        final double power;
+        FLYWHEEL_SPIN_POSITION(double power) {
+            this.power = power;
+        }
+    }
+
     private LinearOpMode opMode;
 
     public DcMotorEx flywheelLeft;
     public DcMotorEx flywheelRight;
 
-    public FLYWHEEL_STATE state;
+    public FLYWHEEL_STATE flywheelState = FLYWHEEL_STATE.IDLE;
+    public FLYWHEEL_SPIN_POSITION spinPosition = FLYWHEEL_SPIN_POSITION.FAR;
+
 
     public Flywheel(LinearOpMode opMode) {
         this.opMode = opMode;
-        state = FLYWHEEL_STATE.IDLE;
     }
 
     @Override
@@ -35,28 +45,33 @@ public class Flywheel implements Subsystem {
         flywheelRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
     }
 
+    public void setPosition(FLYWHEEL_SPIN_POSITION position) {
+        if (position != spinPosition) {
+            spinPosition = position;
+
+            if (flywheelState == FLYWHEEL_STATE.SPINNING) {
+                spinToSpeed();
+            }
+        }
+    }
+
     public void spinToSpeed(double power) {
         flywheelLeft.setPower(power);
         flywheelRight.setPower(power);
-        state = FLYWHEEL_STATE.SPINNING;
+        flywheelState = FLYWHEEL_STATE.SPINNING;
     }
 
     public void spinToSpeed() {
-        spinToSpeed(.65);
-    }
-
-    @Override
-    public void stop() {
-        flywheelLeft.setPower(0);
-        flywheelRight.setPower(0);
-        state = FLYWHEEL_STATE.IDLE;
+        spinToSpeed(spinPosition.power);
     }
 
     @Override
     public String[] getTelemetry() {
         return new String[] {
-                "Flywheel State: " + state.toString(),
-                "Flywheel Power: " + (flywheelLeft.getPower() + flywheelRight.getPower())/2.0
+                "Flywheel State: " + flywheelState,
+                "Flywheel Position: " + spinPosition,
+                "Flywheel Power: " +
+                        String.format("%.2f", (flywheelLeft.getPower() + flywheelRight.getPower()) / 2.0)
         };
     }
 }

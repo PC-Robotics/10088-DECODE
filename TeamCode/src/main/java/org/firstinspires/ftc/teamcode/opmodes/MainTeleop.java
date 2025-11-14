@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
 @TeleOp(name = "MainTeleop", group = "Main")
 public class MainTeleop extends LinearOpMode {
@@ -55,7 +56,7 @@ public class MainTeleop extends LinearOpMode {
 
         robot.follower.startTeleOpDrive();
 
-        double angleOffset = Robot.alliance == Alliance.BLUE ? 0 : Math.toRadians(180);
+        double angleOffset = Robot.alliance == Alliance.RED ? 0 : Math.toRadians(180);
         while (opModeIsActive()) { // hi
             robot.update();
 
@@ -103,9 +104,15 @@ public class MainTeleop extends LinearOpMode {
 
 
     private void flywheelControl() {
-        if (gamepad2.dpad_up) {
+        if (gamepad2.triangleWasPressed()) {
+            robot.flywheel.setPosition(Flywheel.FLYWHEEL_SPIN_POSITION.FAR);
+        } else if (gamepad2.crossWasPressed()) {
+            robot.flywheel.setPosition(Flywheel.FLYWHEEL_SPIN_POSITION.CLOSE);
+        }
+
+        if (gamepad2.dpadUpWasPressed()) {
             robot.flywheel.spinToSpeed();
-        } else if (gamepad2.dpad_down) {
+        } else if (gamepad2.dpadDownWasPressed()) {
             robot.flywheel.stop();
         }
     }
