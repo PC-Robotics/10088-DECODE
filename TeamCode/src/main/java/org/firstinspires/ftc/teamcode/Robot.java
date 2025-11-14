@@ -2,34 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.DriveBase;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
-/*
- * Control -
- *      Servo -
- *          0: wrist
- *          2: (CR) intake
- *          5: wrist
- *      Motors -
- *          0: backRight(new)
- *          1: frontRight
- *          2: backLeft(new)
- *          3: frontLeft(new)
- * Expansion -
- *      Servo -
- *          0: right
- *          2: left
- *          4: claw
- *      Motors -
- *          0: linearSlide
- */
 public class Robot {
     private LinearOpMode myOpMode;   // gain access to methods in the calling OpMode.
 
@@ -51,13 +30,13 @@ public class Robot {
         driveBase = new DriveBase(myOpMode);
         intake = new Intake(myOpMode);
         flywheel = new Flywheel(myOpMode);
-        follower = Constants.createFollower(opMode.hardwareMap);
         currentPose = null;
         endPose = null;
     }
 
     // initialize (main function)
     public void init() {
+        follower = Constants.createFollower(myOpMode.hardwareMap);
         driveBase.init();
         intake.init();
         flywheel.init();
@@ -66,6 +45,7 @@ public class Robot {
     public void update() {
         follower.update();
         currentPose = follower.getPose();
+        intake.update();
     }
 
     public void stop() {
@@ -86,7 +66,7 @@ public class Robot {
      * if flywheel is not spinning and ball detected then no
      */
     public boolean canIntake() {
-        if (flywheel.state == Flywheel.FLYWHEEL_STATE.SPINNING) {
+        if (flywheel.flywheelState == Flywheel.FLYWHEEL_STATE.SPINNING) {
             return true;
         } else {
             return !intake.detectingBall;

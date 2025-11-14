@@ -142,7 +142,7 @@ public class Pedro4BallAuto extends LinearOpMode {
     private void autonomousPathUpdate() {
         switch (state) {
             case SCORE_PRELOAD:
-                if (robot.flywheel.state == Flywheel.FLYWHEEL_STATE.IDLE) {
+                if (robot.flywheel.flywheelState == Flywheel.FLYWHEEL_STATE.IDLE) {
                     robot.flywheel.spinToSpeed();
                 }
                 sleep(2000);
@@ -171,7 +171,7 @@ public class Pedro4BallAuto extends LinearOpMode {
 
                 sleep(200);
                 robot.intake.stop();
-                if (robot.flywheel.state == Flywheel.FLYWHEEL_STATE.IDLE) {
+                if (robot.flywheel.flywheelState == Flywheel.FLYWHEEL_STATE.IDLE) {
                     robot.flywheel.spinToSpeed();
                 }
                 robot.follower.followPath(score_a1);
@@ -198,7 +198,7 @@ public class Pedro4BallAuto extends LinearOpMode {
 
                 sleep(200);
                 robot.intake.stop();
-                if (robot.flywheel.state == Flywheel.FLYWHEEL_STATE.IDLE) {
+                if (robot.flywheel.flywheelState == Flywheel.FLYWHEEL_STATE.IDLE) {
                     robot.flywheel.spinToSpeed();
                 }
                 robot.follower.followPath(score_b1);
@@ -225,7 +225,7 @@ public class Pedro4BallAuto extends LinearOpMode {
 
                 sleep(200);
                 robot.intake.stop();
-                if (robot.flywheel.state == Flywheel.FLYWHEEL_STATE.IDLE) {
+                if (robot.flywheel.flywheelState == Flywheel.FLYWHEEL_STATE.IDLE) {
                     robot.flywheel.spinToSpeed();
                 }
                 robot.follower.followPath(score_c1);
