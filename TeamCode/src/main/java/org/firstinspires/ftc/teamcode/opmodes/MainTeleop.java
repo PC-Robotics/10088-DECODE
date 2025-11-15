@@ -56,7 +56,7 @@ public class MainTeleop extends LinearOpMode {
 
         robot.follower.startTeleOpDrive();
 
-        double angleOffset = Robot.alliance == Alliance.RED ? 0 : Math.toRadians(180);
+        double angleOffset = Robot.alliance == Alliance.BLUE ? 0 : Math.toRadians(180);
         while (opModeIsActive()) { // hi
             robot.update();
 

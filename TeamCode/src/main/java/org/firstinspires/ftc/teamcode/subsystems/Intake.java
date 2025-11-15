@@ -24,7 +24,7 @@ public class Intake implements Subsystem {
     public DcMotorEx intake;
     public DistanceSensor distanceSensor;
 
-    private final boolean usingDistanceSensor = false;
+    private final boolean usingDistanceSensor = true;
     public double distance = 0.0; // in
 
     public boolean detectingBall = false;
