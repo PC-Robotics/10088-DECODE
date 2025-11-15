@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.HardwareUtility.motorInit;
 
 import android.graphics.Color;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -11,27 +12,23 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.stream.Stream;
 
+@Configurable
 public class Intake implements Subsystem {
     private LinearOpMode opMode;
     public DcMotorEx intake;
-    // note that the REV Color Sensor v3 has both a color sensor and an IR proximity sensor in the same package
-    public NormalizedColorSensor colorSensor;
     public DistanceSensor distanceSensor;
 
-    private static final boolean usingColorSensor = false;
-
-    NormalizedRGBA colors;
-    public float[] hsvValues = {0F, 0F, 0F};
-
-    private static final float GREEN_HUE  = 120f;
-    private static final float PURPLE_HUE = 285f;
-    private static final float HUE_TOLERANCE = 25f; // +- degrees
-    private static final float ALPHA_THRESHOLD = 0.05f; // minimum alpha (0–1)
+    private final boolean usingDistanceSensor = false;
+    public double distance = 0.0; // in
 
     public boolean detectingBall = false;
+    public static double BALL_DETECTING_DISTANCE = 7.0;
 
     public Intake(LinearOpMode opMode) {
         this.opMode = opMode;
@@ -41,26 +38,21 @@ public class Intake implements Subsystem {
     public void init() {
         intake = motorInit(opMode.hardwareMap, "intake", DcMotorSimple.Direction.REVERSE);
         intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        if (usingColorSensor) {
-            colorSensor = opMode.hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
-            distanceSensor = opMode.hardwareMap.get(DistanceSensor.class, "colorSensor");
+        if (usingDistanceSensor) {
+            distanceSensor = opMode.hardwareMap.get(DistanceSensor.class, "distanceSensor");
         }
     }
 
 
     @Override
     public void update() {
-        if (!usingColorSensor) {
+        if (!usingDistanceSensor) {
             detectingBall = false;
             return;
         }
 
-        colors = colorSensor.getNormalizedColors();
-        Color.colorToHSV(colors.toColor(), hsvValues);
-        detectingBall = colors.alpha > ALPHA_THRESHOLD && (
-                hueDistance(hsvValues[0], GREEN_HUE) < HUE_TOLERANCE ||
-                hueDistance(hsvValues[0], PURPLE_HUE) < HUE_TOLERANCE
-        );
+        distance = distanceSensor.getDistance(DistanceUnit.INCH);
+        detectingBall = distance < BALL_DETECTING_DISTANCE;
     }
 
     public void intake() {
@@ -87,9 +79,9 @@ public class Intake implements Subsystem {
     @Override
     public String[] getTelemetry() {
         String[] colorArr;
-        if (usingColorSensor && colors != null) {
+        if (usingDistanceSensor && distance != 0.0) {
             colorArr = new String[]{
-                    "R: " + colors.red + " G: " + colors.green + " B: " + colors.blue + " A: " + colors.alpha,
+                    "Intake Distance: " + String.format(Locale.ROOT,"%.01f in", distance),
                     "Ball Detected: " + (detectingBall ? "yes" : "no")
             };
         } else {
@@ -102,11 +94,5 @@ public class Intake implements Subsystem {
 
         return Stream.concat(Arrays.stream(normalArr), Arrays.stream(colorArr))
                 .toArray(String[]::new);
-    }
-
-
-    private static float hueDistance(float h1, float h2) {
-        float distance = Math.abs(h1 - h2);
-        return (distance > 180) ? 360 - distance : distance;
     }
 }
