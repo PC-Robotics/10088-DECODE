@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot;
 
+@Autonomous(name = "SimpleAuto", group = "Main", preselectTeleOp = "MainTeleop")
 public class SimpleAuto extends LinearOpMode {
     private Robot robot = new Robot(this);
 

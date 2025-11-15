@@ -112,6 +112,7 @@ public class Pedro4BallAuto extends LinearOpMode {
         mirrorPoses();
         buildPaths();
         robot.follower.setStartingPose(startPose);
+        robot.flywheel.setPosition(Flywheel.FLYWHEEL_SPIN_POSITION.FAR);
 
         // set timers to 0 now that we have begun
         pathTimer.resetTimer();

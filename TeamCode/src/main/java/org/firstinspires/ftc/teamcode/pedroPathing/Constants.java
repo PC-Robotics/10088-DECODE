@@ -49,25 +49,40 @@ public class Constants {
              *
              */
             .translationalPIDFCoefficients(new PIDFCoefficients(
+                    0.03,
                     0,
                     0,
+                    0.015
+            ))
+            .translationalPIDFSwitch(4)
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
+                    0.4,
                     0,
-                    0.06
+                    0.005,
+                    0.0006
             ))
             .headingPIDFCoefficients(new PIDFCoefficients(
+                    0.8,
                     0,
                     0,
+                    0.01
+            ))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
+                    2.5,
                     0,
-                    0
+                    0.1,
+                    0.0005
             ))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
+                    0.1,
                     0,
-                    0,
-                    0,
+                    0.00035,
                     0.6,
-                    0
+                    0.015
             ))
-            .centripetalScaling(0)
+
+            .drivePIDFSwitch(15)
+            .centripetalScaling(0.0005);
             ;
 
     public static MecanumConstants driveConstants = new MecanumConstants()
