@@ -16,7 +16,7 @@ public class Flywheel implements Subsystem {
     }
 
     public enum FLYWHEEL_SPIN_POSITION {
-        CLOSE(0.60),
+        CLOSE(0.55),
         FAR(0.95);
 
         final double power;

@@ -22,7 +22,7 @@ public class MainTeleop extends LinearOpMode {
     private double gamepad2RightTrigger;
     private boolean autoTurn = false;
     private boolean slowMode = false;
-    private final static double SLOW_MODE_MULTIPLIER = 0.5;
+    private final static double SLOW_MODE_MULTIPLIER = 0.4;
 
     public void runOpMode() {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -56,7 +56,7 @@ public class MainTeleop extends LinearOpMode {
 
         robot.follower.startTeleOpDrive();
 
-        double angleOffset = Robot.alliance == Alliance.BLUE ? 0 : Math.toRadians(180);
+        double angleOffset = Robot.alliance == Alliance.RED ? 0 : Math.toRadians(180);
         while (opModeIsActive()) { // hi
             robot.update();
 

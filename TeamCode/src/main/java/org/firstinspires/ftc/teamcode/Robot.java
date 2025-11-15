@@ -22,7 +22,7 @@ public class Robot {
 
     public Pose currentPose;
     public static Pose endPose; // static variables are saved between auto and teleop so this variable helps us do that
-    public static Pose scorePose = new Pose(56, 18, Math.toRadians(298));
+    public static Pose scorePose = new Pose(56, 18, Math.toRadians(315));
 
     // Define a constructor that allows the OpMode to pass a reference to itself.
     public Robot(LinearOpMode opMode) {
