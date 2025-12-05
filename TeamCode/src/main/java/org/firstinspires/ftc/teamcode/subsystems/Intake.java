@@ -1,14 +1,17 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.teamcode.HardwareUtility.CRServoInit;
 import static org.firstinspires.ftc.teamcode.HardwareUtility.motorInit;
 
 import android.graphics.Color;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
@@ -22,13 +25,6 @@ import java.util.stream.Stream;
 public class Intake implements Subsystem {
     private LinearOpMode opMode;
     public DcMotorEx intake;
-    public DistanceSensor distanceSensor;
-
-    private final boolean usingDistanceSensor = true;
-    public double distance = 0.0; // in
-
-    public boolean detectingBall = false;
-    public static double BALL_DETECTING_DISTANCE = 7.0;
 
     public Intake(LinearOpMode opMode) {
         this.opMode = opMode;
@@ -38,21 +34,12 @@ public class Intake implements Subsystem {
     public void init() {
         intake = motorInit(opMode.hardwareMap, "intake", DcMotorSimple.Direction.REVERSE);
         intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        if (usingDistanceSensor) {
-            distanceSensor = opMode.hardwareMap.get(DistanceSensor.class, "distanceSensor");
-        }
     }
 
 
     @Override
     public void update() {
-        if (!usingDistanceSensor) {
-            detectingBall = false;
-            return;
-        }
-
-        distance = distanceSensor.getDistance(DistanceUnit.INCH);
-        detectingBall = distance < BALL_DETECTING_DISTANCE;
+        return;
     }
 
     public void intake() {
@@ -78,21 +65,8 @@ public class Intake implements Subsystem {
 
     @Override
     public String[] getTelemetry() {
-        String[] colorArr;
-        if (usingDistanceSensor && distance != 0.0) {
-            colorArr = new String[]{
-                    "Intake Distance: " + String.format(Locale.ROOT,"%.01f in", distance),
-                    "Ball Detected: " + (detectingBall ? "yes" : "no")
-            };
-        } else {
-            colorArr = new String[0];
-        }
-
-        String[] normalArr = new String[] {
+        return new String[] {
             "Intake Power: " + intake.getPower(),
         };
-
-        return Stream.concat(Arrays.stream(normalArr), Arrays.stream(colorArr))
-                .toArray(String[]::new);
     }
 }

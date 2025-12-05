@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
 @TeleOp(name = "MainTeleop", group = "Main")
 public class MainTeleop extends LinearOpMode {
-    Robot robot = new Robot(this);
+    private Robot robot;
 
     private TelemetryManager panelsTelemetry;
 
@@ -23,11 +23,13 @@ public class MainTeleop extends LinearOpMode {
     private boolean autoTurn = false;
     private boolean slowMode = false;
     private final static double SLOW_MODE_MULTIPLIER = 0.4;
+    private double driveSpeed = 1;
 
     public void runOpMode() {
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-
+        robot = new Robot(this);
         robot.init();
+
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         Alliance a = Alliance.BLUE;
         gamepad1.rumble(500); // reminder to set alliance team
@@ -47,40 +49,31 @@ public class MainTeleop extends LinearOpMode {
             );
             panelsTelemetry.update(telemetry);
         }
-        Robot.alliance = a;
+        robot.setAlliance(a);
 
         robot.follower.setStartingPose(Robot.endPose == null ? new Pose() : Robot.endPose);
+        robot.follower.startTeleOpDrive(false);
         robot.update();
 
         waitForStart();
-
-        robot.follower.startTeleOpDrive();
 
         double angleOffset = Robot.alliance == Alliance.RED ? 0 : Math.toRadians(180);
         while (opModeIsActive()) { // hi
             robot.update();
 
             readController();
+            driveSpeed = slowMode ? SLOW_MODE_MULTIPLIER : 1;
 
             if (autoTurn) {
                 robot.follower.holdPoint(
                         new BezierPoint(robot.currentPose),
                         Robot.scorePose.getHeading(),
                         false);
-            }
-            if (!slowMode) {
-                robot.follower.setTeleOpDrive(
-                        -gamepad1.left_stick_y,
-                        -gamepad1.left_stick_x,
-                        -gamepad1.right_stick_x,
-                        false,
-                        angleOffset
-                );
             } else {
                 robot.follower.setTeleOpDrive(
-                        -gamepad1.left_stick_y * SLOW_MODE_MULTIPLIER,
-                        -gamepad1.left_stick_x * SLOW_MODE_MULTIPLIER,
-                        -gamepad1.right_stick_x * SLOW_MODE_MULTIPLIER,
+                        -gamepad1.left_stick_y * driveSpeed,
+                        -gamepad1.left_stick_x * driveSpeed,
+                        -gamepad1.right_stick_x * driveSpeed,
                         false,
                         angleOffset
                 );
@@ -88,7 +81,7 @@ public class MainTeleop extends LinearOpMode {
 
 
             flywheelControl();
-            intakeControl();
+            intakeAndTransferControl();
 
             reloadTelemetry();
             telemetry.update();
@@ -117,10 +110,19 @@ public class MainTeleop extends LinearOpMode {
         }
     }
 
-    private void intakeControl() {
+    private void intakeAndTransferControl() {
+        // if we are shooting then run transfer AND intake
+        if (gamepad2.square) {
+            robot.transfer.start();
+            robot.intake.intake();
+            return; // skip any other logic
+        }
+        robot.transfer.stop(); // if we are not shooting stop transfer
+
+        // intake logic
         if (gamepad2.right_bumper) {
             robot.intake.outtake();
-        } else if (gamepad2RightTrigger != 0 && robot.canIntake()) {
+        } else if (gamepad2RightTrigger > 0) {
             robot.intake.intake(gamepad2RightTrigger);
         } else {
             robot.intake.stop();
@@ -129,7 +131,15 @@ public class MainTeleop extends LinearOpMode {
 
 
     private void reloadTelemetry() {
-        panelsTelemetry.debug(robot.intake.getTelemetry());
+        panelsTelemetry.debug(
+                "Alliance: " + Robot.alliance,
+                "Slow mode: " + (slowMode ? "ON" : "OFF"),
+                "AutoTurn: " + (autoTurn ? "ON" : "OFF"),
+                "Pose: " + robot.currentPose,
+                robot.intake.getTelemetry(),
+                robot.flywheel.getTelemetry(),
+                robot.transfer.getTelemetry()
+        );
         panelsTelemetry.update(telemetry);
     }
 }
