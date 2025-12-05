@@ -70,6 +70,15 @@ public class MainTeleop extends LinearOpMode {
                         Robot.scorePose.getHeading(),
                         false);
             } else {
+                // // fallback
+                // robot.driveBase.fieldCentricDrive(
+                //         -gamepad1.left_stick_y * driveSpeed,
+                //         -gamepad1.left_stick_x * driveSpeed,
+                //         -gamepad1.right_stick_x * driveSpeed,
+                //         robot.currentPose.getHeading(),
+                //         false
+                // );
+
                 robot.follower.setTeleOpDrive(
                         -gamepad1.left_stick_y * driveSpeed,
                         -gamepad1.left_stick_x * driveSpeed,
