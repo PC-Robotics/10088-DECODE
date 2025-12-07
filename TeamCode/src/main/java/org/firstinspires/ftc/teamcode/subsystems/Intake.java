@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
@@ -64,9 +65,9 @@ public class Intake implements Subsystem {
     }
 
     @Override
-    public String[] getTelemetry() {
-        return new String[] {
-            "Intake Power: " + intake.getPower(),
-        };
+    public List<String> getTelemetry() {
+        return List.of(
+            "Intake Power: " + intake.getPower()
+        );
     }
 }

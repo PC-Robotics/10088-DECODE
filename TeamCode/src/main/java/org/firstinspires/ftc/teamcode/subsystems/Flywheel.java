@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import java.util.List;
 import java.util.Locale;
 
 
@@ -16,8 +17,8 @@ public class Flywheel implements Subsystem {
     }
 
     public enum FLYWHEEL_SPIN_POSITION {
-        CLOSE(0.55),
-        FAR(0.95);
+        CLOSE(0.53),
+        FAR(0.90);
 
         final double power;
         FLYWHEEL_SPIN_POSITION(double power) {
@@ -77,13 +78,13 @@ public class Flywheel implements Subsystem {
 
 
     @Override
-    public String[] getTelemetry() {
+    public List<String> getTelemetry() {
         double avgPower = (flywheelLeft.getPower() + flywheelRight.getPower()) / 2.0;
 
-        return new String[] {
+        return List.of(
                 "Flywheel State: " + flywheelState.toString(),
                 "Flywheel Position: " + spinPosition.toString(),
                 "Flywheel Power: " + String.format(Locale.ROOT, "%.2f", avgPower)
-        };
+        );
     }
 }

@@ -6,9 +6,12 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
+import com.pedropathing.ftc.localization.Encoder;
 import com.pedropathing.ftc.localization.constants.PinpointConstants;
+import com.pedropathing.ftc.localization.constants.TwoWheelConstants;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -98,14 +101,23 @@ public class Constants {
             .xVelocity(60.670928714782235)
             .yVelocity(50.71566460076281);
 
-    public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(5.98)
-            .strafePodX(-6.92)
-            .distanceUnit(DistanceUnit.INCH)
-            .hardwareMapName("pinpoint")
-            .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
-            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+    public static TwoWheelConstants localizerConstants = new TwoWheelConstants()
+            .forwardPodY(0)
+            .strafePodX(0)
+            .forwardEncoder_HardwareMapName("backleft")
+            .strafeEncoder_HardwareMapName("frontleft")
+            .IMU_HardwareMapName("imu")
+            .IMU_Orientation(
+                    new RevHubOrientationOnRobot(
+                            RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                            RevHubOrientationOnRobot.UsbFacingDirection.UP
+                    )
+            )
+            .forwardEncoderDirection(Encoder.REVERSE)
+            .strafeEncoderDirection(Encoder.REVERSE)
+            .forwardTicksToInches(.00201)
+            .strafeTicksToInches(.00195);
+
 
     // TODO - set constraints
     public static PathConstraints pathConstraints = new PathConstraints(
@@ -121,7 +133,7 @@ public class Constants {
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
-                .pinpointLocalizer(localizerConstants)
+                .twoWheelLocalizer(localizerConstants)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
                 .build();

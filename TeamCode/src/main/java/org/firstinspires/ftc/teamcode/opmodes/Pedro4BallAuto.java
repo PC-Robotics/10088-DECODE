@@ -71,7 +71,6 @@ public class Pedro4BallAuto extends LinearOpMode {
     private static Pose startPose = new Pose(56, 9, Math.toRadians(270));
     private static Pose row1ApproachPose = new Pose(46, 36, Math.toRadians(180));
     private static Pose row1ApproachControlPoint = new Pose(56, 36);
-    private static Pose grab_a1_Pose = new Pose(36, 36, Math.toRadians(180));
     private static Pose grab_b1_Pose = new Pose(31, 36, Math.toRadians(180));
     private static Pose grab_c1_Pose = new Pose(26, 36, Math.toRadians(180));
     public static Pose leverPose = new Pose(22, 72, Math.toRadians(270));
@@ -148,34 +147,6 @@ public class Pedro4BallAuto extends LinearOpMode {
                 }
                 sleep(2000);
                 robot.follower.followPath(scorePreload); // holds position
-                setState(AutonomousState.GRAB_A1);
-                break;
-
-            case GRAB_A1:
-                if (robot.follower.isBusy()) { // still arriving to point
-                    break;
-                }
-
-                robot.intake.intake();
-                // TODO - the robots
-                sleep(500);
-                robot.flywheel.stop();
-
-                robot.follower.followPath(grab_a1, false);
-                setState(AutonomousState.SCORE_A1);
-                break;
-
-            case SCORE_A1:
-                if (robot.follower.isBusy()) { // still arriving to point
-                    break;
-                }
-
-                sleep(200);
-                robot.intake.stop();
-                if (robot.flywheel.flywheelState == Flywheel.FLYWHEEL_STATE.IDLE) {
-                    robot.flywheel.spinToSpeed();
-                }
-                robot.follower.followPath(score_a1);
                 setState(AutonomousState.GRAB_B1);
                 break;
 
@@ -259,7 +230,6 @@ public class Pedro4BallAuto extends LinearOpMode {
             startPose = startPose.mirror();
             row1ApproachPose = row1ApproachPose.mirror();
             row1ApproachControlPoint = row1ApproachControlPoint.mirror();
-            grab_a1_Pose = grab_a1_Pose.mirror();
             grab_b1_Pose = grab_b1_Pose.mirror();
             grab_c1_Pose = grab_c1_Pose.mirror();
             leverPose = leverPose.mirror();
@@ -271,30 +241,6 @@ public class Pedro4BallAuto extends LinearOpMode {
         scorePreload = robot.follower.pathBuilder()
                 .addPath(new BezierLine(startPose, Robot.scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), Robot.scorePose.getHeading())
-                .build();
-
-        grab_a1 = robot.follower.pathBuilder()
-                .addPath(new BezierCurve(Robot.scorePose, row1ApproachControlPoint, row1ApproachPose))
-                .setLinearHeadingInterpolation(Robot.scorePose.getHeading(), row1ApproachPose.getHeading())
-                .addPath(new BezierLine(row1ApproachPose, grab_a1_Pose))
-                .setTangentHeadingInterpolation()
-                .build();
-
-        score_a1 = robot.follower.pathBuilder()
-                .addPath(new BezierLine(grab_a1_Pose, Robot.scorePose))
-                .setLinearHeadingInterpolation(grab_a1_Pose.getHeading(), Robot.scorePose.getHeading())
-                .build();
-
-        grab_b1 = robot.follower.pathBuilder()
-                .addPath(new BezierCurve(Robot.scorePose, row1ApproachControlPoint, row1ApproachPose))
-                .setLinearHeadingInterpolation(Robot.scorePose.getHeading(), row1ApproachPose.getHeading())
-                .addPath(new BezierLine(row1ApproachPose, grab_b1_Pose))
-                .setTangentHeadingInterpolation()
-                .build();
-
-        score_b1 = robot.follower.pathBuilder()
-                .addPath(new BezierLine(grab_b1_Pose, Robot.scorePose))
-                .setLinearHeadingInterpolation(grab_b1_Pose.getHeading(), Robot.scorePose.getHeading())
                 .build();
 
         grab_c1 = robot.follower.pathBuilder()
@@ -323,8 +269,6 @@ public class Pedro4BallAuto extends LinearOpMode {
 
     public enum AutonomousState {
         SCORE_PRELOAD,
-        GRAB_A1,
-        SCORE_A1,
         GRAB_B1,
         SCORE_B1,
         GRAB_C1,

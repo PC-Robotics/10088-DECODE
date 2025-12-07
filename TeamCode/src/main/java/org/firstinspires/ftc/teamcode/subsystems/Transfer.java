@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 
+import java.util.List;
+
 public class Transfer implements Subsystem {
     private LinearOpMode opMode;
     public CRServo transfer;
@@ -34,9 +36,9 @@ public class Transfer implements Subsystem {
     }
 
     @Override
-    public String[] getTelemetry() {
-        return new String[] {
+    public List<String> getTelemetry() {
+        return List.of(
                 "Transfer State: " + (transfer.getPower() > 0 ? "on" : "off")
-        };
+        );
     }
 }

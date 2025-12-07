@@ -13,6 +13,9 @@ import org.firstinspires.ftc.teamcode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @TeleOp(name = "MainTeleop", group = "Main")
 public class MainTeleop extends LinearOpMode {
     private Robot robot;
@@ -70,21 +73,13 @@ public class MainTeleop extends LinearOpMode {
                         Robot.scorePose.getHeading(),
                         false);
             } else {
-                // // fallback
-                // robot.driveBase.fieldCentricDrive(
-                //         -gamepad1.left_stick_y * driveSpeed,
-                //         -gamepad1.left_stick_x * driveSpeed,
-                //         -gamepad1.right_stick_x * driveSpeed,
-                //         robot.currentPose.getHeading(),
-                //         false
-                // );
+                 // fallback
 
                 robot.follower.setTeleOpDrive(
                         -gamepad1.left_stick_y * driveSpeed,
                         -gamepad1.left_stick_x * driveSpeed,
                         -gamepad1.right_stick_x * driveSpeed,
-                        false,
-                        angleOffset
+                        true
                 );
             }
 
@@ -140,15 +135,19 @@ public class MainTeleop extends LinearOpMode {
 
 
     private void reloadTelemetry() {
-        panelsTelemetry.debug(
-                "Alliance: " + Robot.alliance,
-                "Slow mode: " + (slowMode ? "ON" : "OFF"),
-                "AutoTurn: " + (autoTurn ? "ON" : "OFF"),
-                "Pose: " + robot.currentPose,
-                robot.intake.getTelemetry(),
-                robot.flywheel.getTelemetry(),
-                robot.transfer.getTelemetry()
-        );
+        List<String> lines = new ArrayList<>();
+
+        lines.add("Alliance: " + Robot.alliance);
+        lines.add("Slow mode: " + (slowMode ? "ON" : "OFF"));
+        lines.add("AutoTurn: " + (autoTurn ? "ON" : "OFF"));
+        lines.add("Pose: " + robot.currentPose);
+
+        lines.addAll(robot.intake.getTelemetry());
+        lines.addAll(robot.flywheel.getTelemetry());
+        lines.addAll(robot.transfer.getTelemetry());
+
+        panelsTelemetry.debug(lines.toArray(new String[0]));
         panelsTelemetry.update(telemetry);
     }
+
 }

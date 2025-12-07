@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.Settings;
 
+import java.util.List;
+
 /**
  * org.firstinspires.ftc.teamcode.subsystems.DriveBase subsystem implementation for managing the robot's drive motors.
  */
@@ -171,12 +173,12 @@ public class DriveBase implements Subsystem {
     }
 
     @Override
-    public String[] getTelemetry() {
-        return new String[] {
+    public List<String> getTelemetry() {
+        return List.of(
             "Front Left Power" + frontLeft.getPower(),
             "Back Left Power" + backLeft.getPower(),
             "Front Right Power" + frontRight.getPower(),
             "Back Right Power" + backRight.getPower()
-        };
+        );
     }
 }
