@@ -5,17 +5,20 @@ import static org.firstinspires.ftc.teamcode.Utility.normalizePowers;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.Settings;
 
+import java.util.List;
+
 /**
  * org.firstinspires.ftc.teamcode.subsystems.DriveBase subsystem implementation for managing the robot's drive motors.
  */
-public class DriveBase {
+public class DriveBase implements Subsystem {
     private LinearOpMode opMode;
 
-    public DcMotor frontLeft, backLeft, frontRight, backRight;
+    public DcMotorEx frontLeft, backLeft, frontRight, backRight;
     // public DcMotor verticalEncoder, horizontalEncoder;
 
     private double[] powers = new double[4];
@@ -27,17 +30,17 @@ public class DriveBase {
     /**
      * Initialize the drive motors and configure their settings.
      */
+    @Override
     public void init() {
-        frontLeft = motorInit(opMode.hardwareMap, "frontleft", DcMotor.Direction.FORWARD);
-        backLeft = motorInit(opMode.hardwareMap, "backleft", DcMotor.Direction.REVERSE);
-        frontRight = motorInit(opMode.hardwareMap, "frontright", DcMotor.Direction.REVERSE);
-        backRight = motorInit(opMode.hardwareMap, "backright", DcMotor.Direction.FORWARD);
+        frontLeft = motorInit(opMode.hardwareMap, "frontleft", DcMotorSimple.Direction.REVERSE);
+        backLeft = motorInit(opMode.hardwareMap, "backleft", DcMotorSimple.Direction.FORWARD);
+        frontRight = motorInit(opMode.hardwareMap, "frontright", DcMotorSimple.Direction.FORWARD);
+        backRight = motorInit(opMode.hardwareMap, "backright", DcMotorSimple.Direction.REVERSE);
 
-//        verticalEncoder = motorInit(opMode.hardwareMap, "par", DcMotor.Direction.FORWARD);
-//        horizontalEncoder = motorInit(opMode.hardwareMap, "perp", DcMotor.Direction.FORWARD);
-
-        opMode.telemetry.addData("> (INFO)", "driveBase Initialized");
-        opMode.telemetry.update();
+        frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
     }
 
     /**
@@ -50,6 +53,7 @@ public class DriveBase {
     /**
      * Stop all drive motors by setting their power to zero.
      */
+    @Override
     public void stop() {
         setMotorPowers(0, 0, 0, 0);
     }
@@ -168,10 +172,13 @@ public class DriveBase {
         setMotorPowers(power, power, power, power);
     }
 
-    public void telemetry() {
-        opMode.telemetry.addData("Front Left Power", frontLeft.getPower());
-        opMode.telemetry.addData("Back Left Power", backLeft.getPower());
-        opMode.telemetry.addData("Front Right Power", frontRight.getPower());
-        opMode.telemetry.addData("Back Right Power", backRight.getPower());
+    @Override
+    public List<String> getTelemetry() {
+        return List.of(
+            "Front Left Power" + frontLeft.getPower(),
+            "Back Left Power" + backLeft.getPower(),
+            "Front Right Power" + frontRight.getPower(),
+            "Back Right Power" + backRight.getPower()
+        );
     }
 }

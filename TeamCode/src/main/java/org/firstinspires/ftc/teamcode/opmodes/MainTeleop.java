@@ -1,111 +1,132 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import static org.firstinspires.ftc.teamcode.Utility.applyDeadzone;
-import static org.firstinspires.ftc.teamcode.Utility.clamp;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.geometry.BezierPoint;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Alliance;
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.Settings;
+import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
-/**
- * Controller 1 - Driver
- * joysticks - mecanum drive
- * bumper left - fine control (half sped)
- * options - reset heading
- * trigger left - trolley go in (values wrong)
- * trigger right - trolley go out
- * square - claw close (set to bucket now)
- * circle - claw open
- * <p>
- * Controller 2 - Operator
- * bumper left - wrist go "in" (not working well)
- * bumper right - wrist go "out"
- * trigger right - intake spin
- * trigger left - intake spin backwards
- * triangle - bucket release (not working)
- * cross - bucket pickup (slow)
- * dpadUp - slide index up (not working)
- * dpadDown - slide index down
- * left joystick y - slide up down manual control
- */
+import java.util.ArrayList;
+import java.util.List;
 
-@TeleOp(name = "Main Teleop", group = " Main")
+@TeleOp(name = "MainTeleop", group = "Main")
 public class MainTeleop extends LinearOpMode {
-    Robot robot = new Robot(this);
+    private Robot robot;
 
-    private double straight, turn, strafe, heading;
+    private TelemetryManager panelsTelemetry;
 
-    private double gamepad1LeftTrigger, gamepad1RightTrigger, gamepad2LeftTrigger, gamepad2RightTrigger, gamepad2RightJoystickY;
-    private boolean gamepad2LeftBumper = false, gamepad2RightBumper = false, gamepad2DpadRight = false, gamepad2DpadLeft = false;
+    private double gamepad2RightTrigger;
+    private boolean autoTurn = false;
+    private boolean slowMode = false;
+    private final static double SLOW_MODE_MULTIPLIER = 0.4;
+    private double driveSpeed = 1;
 
     public void runOpMode() {
+        robot = new Robot(this);
         robot.init();
-        waitForStart();
-        robot.imu.resetYaw();
 
-        startingPositions();
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        while (opModeIsActive()) { // hi
-            if (gamepad1.options) {
-                robot.imu.resetYaw();
+        Alliance a = Alliance.BLUE;
+        gamepad1.rumble(500); // reminder to set alliance team
+        while (opModeInInit()) {
+            if (gamepad1.leftBumperWasPressed()) {
+                a = Alliance.BLUE;
+            } else if (gamepad1.rightBumperWasPressed()) {
+                a = Alliance.RED;
             }
+
+            panelsTelemetry.debug(
+                    "Select Alliance",
+                    "Left Bumper: Blue Alliance",
+                    "Right Bumper: Red Alliance",
+                    " ------------------------- ",
+                    "Current Alliance: " + a.toString()
+            );
+            panelsTelemetry.update(telemetry);
+        }
+        robot.setAlliance(a);
+
+        robot.follower.setStartingPose(Robot.endPose == null ? new Pose() : Robot.endPose);
+        robot.follower.startTeleOpDrive(false);
+        robot.update();
+
+        waitForStart();
+
+        double angleOffset = Robot.alliance == Alliance.RED ? 0 : Math.toRadians(180);
+        while (opModeIsActive()) { // hi
+            robot.update();
 
             readController();
-            readSensors();
+            driveSpeed = slowMode ? SLOW_MODE_MULTIPLIER : 1;
 
-            robot.driveBase.mecanumDrive(straight, strafe, turn, gamepad1.left_bumper);
-            if (gamepad1.dpad_up) {
-                robot.turnToShoot();
+            if (autoTurn) {
+                robot.follower.holdPoint(
+                        new BezierPoint(robot.currentPose),
+                        Robot.scorePose.getHeading(),
+                        false);
+            } else {
+                 // fallback
+
+                robot.follower.setTeleOpDrive(
+                        -gamepad1.left_stick_y * driveSpeed,
+                        -gamepad1.left_stick_x * driveSpeed,
+                        -gamepad1.right_stick_x * driveSpeed,
+                        true
+                );
             }
+
+
             flywheelControl();
-            intakeControl();
+            intakeAndTransferControl();
 
             reloadTelemetry();
             telemetry.update();
         }
     }
 
-    private void startingPositions() {
-    }
-
     public void readController() {
-        straight = -applyDeadzone(gamepad1.left_stick_y, Settings.DEADZONE_THRESHOLD);
-        strafe = applyDeadzone(gamepad1.left_stick_x, Settings.DEADZONE_THRESHOLD);
-        turn = applyDeadzone(gamepad1.right_stick_x, Settings.DEADZONE_THRESHOLD);
+        slowMode = gamepad1.right_bumper;
+        autoTurn = gamepad1.dpad_up;
 
-        gamepad1RightTrigger = applyDeadzone(gamepad1.right_trigger, Settings.DEADZONE_THRESHOLD);
-        gamepad1LeftTrigger = applyDeadzone(gamepad1.left_trigger, Settings.DEADZONE_THRESHOLD);
-        gamepad2LeftTrigger = applyDeadzone(gamepad2.left_trigger, Settings.DEADZONE_THRESHOLD);
-        gamepad2RightTrigger = applyDeadzone(gamepad2.right_trigger, Settings.DEADZONE_THRESHOLD);
-        gamepad2RightJoystickY = -applyDeadzone(gamepad2.right_stick_y, Settings.DEADZONE_THRESHOLD);
-
-
-        if (gamepad1.options) {
-            robot.imu.resetYaw();
-        }
-    }
-
-    private void readSensors() {
-        heading = robot.imu.getHeading(AngleUnit.RADIANS);
+        gamepad2RightTrigger = applyDeadzone(gamepad2.right_trigger, 0.2);
     }
 
 
     private void flywheelControl() {
-        if (gamepad2.dpad_up) {
+        if (gamepad2.triangleWasPressed()) {
+            robot.flywheel.setPosition(Flywheel.FLYWHEEL_SPIN_POSITION.FAR);
+        } else if (gamepad2.crossWasPressed()) {
+            robot.flywheel.setPosition(Flywheel.FLYWHEEL_SPIN_POSITION.CLOSE);
+        }
+
+        if (gamepad2.dpadUpWasPressed()) {
             robot.flywheel.spinToSpeed();
-        } else if (gamepad2.dpad_down) {
+        } else if (gamepad2.dpadDownWasPressed()) {
             robot.flywheel.stop();
         }
     }
 
-    private void intakeControl() {
+    private void intakeAndTransferControl() {
+        // if we are shooting then run transfer AND intake
+        if (gamepad2.square) {
+            robot.transfer.start();
+            robot.intake.intake();
+            return; // skip any other logic
+        }
+        robot.transfer.stop(); // if we are not shooting stop transfer
+
+        // intake logic
         if (gamepad2.right_bumper) {
             robot.intake.outtake();
-        } else if (gamepad2RightTrigger != 0) {
+        } else if (gamepad2RightTrigger > 0) {
             robot.intake.intake(gamepad2RightTrigger);
         } else {
             robot.intake.stop();
@@ -114,12 +135,19 @@ public class MainTeleop extends LinearOpMode {
 
 
     private void reloadTelemetry() {
-        // robot.intake.telemetry();
+        List<String> lines = new ArrayList<>();
 
-        telemetry.addData("DRIVE BASE", "-----------");
-        robot.imu.telemetry();
-        robot.driveBase.telemetry();
+        lines.add("Alliance: " + Robot.alliance);
+        lines.add("Slow mode: " + (slowMode ? "ON" : "OFF"));
+        lines.add("AutoTurn: " + (autoTurn ? "ON" : "OFF"));
+        lines.add("Pose: " + robot.currentPose);
 
-        telemetry.update();
+        lines.addAll(robot.intake.getTelemetry());
+        lines.addAll(robot.flywheel.getTelemetry());
+        lines.addAll(robot.transfer.getTelemetry());
+
+        panelsTelemetry.debug(lines.toArray(new String[0]));
+        panelsTelemetry.update(telemetry);
     }
+
 }
