@@ -27,12 +27,12 @@ public class HardwareUtility {
      * @param direction   Direction for the motor
      * @return Configured DcMotorEx instance
      */
-    public static DcMotorEx motorInit(HardwareMap hardwareMap, String name, DcMotorSimple.Direction direction) {
+    public static DcMotorEx motorInit(HardwareMap hardwareMap, String name, DcMotorSimple.Direction direction, DcMotor.RunMode runMode) {
         DcMotorEx motor = hardwareMap.get(DcMotorEx.class, name);
         motor.setDirection(direction);
         motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        motor.setMode(runMode);
         return motor;
     }
 

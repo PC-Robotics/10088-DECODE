@@ -32,10 +32,30 @@ public class DriveBase implements Subsystem {
      */
     @Override
     public void init() {
-        frontLeft = motorInit(opMode.hardwareMap, "frontleft", DcMotorSimple.Direction.REVERSE);
-        backLeft = motorInit(opMode.hardwareMap, "backleft", DcMotorSimple.Direction.FORWARD);
-        frontRight = motorInit(opMode.hardwareMap, "frontright", DcMotorSimple.Direction.FORWARD);
-        backRight = motorInit(opMode.hardwareMap, "backright", DcMotorSimple.Direction.REVERSE);
+        frontLeft = motorInit(
+                opMode.hardwareMap,
+                "frontleft",
+                DcMotorSimple.Direction.REVERSE,
+                DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        );
+        backLeft = motorInit(
+                opMode.hardwareMap,
+                "backleft",
+                DcMotorSimple.Direction.FORWARD,
+                DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        );
+        frontRight = motorInit(
+                opMode.hardwareMap,
+                "frontright",
+                DcMotorSimple.Direction.FORWARD,
+                DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        );
+        backRight = motorInit(
+                opMode.hardwareMap,
+                "backright",
+                DcMotorSimple.Direction.REVERSE,
+                DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        );
 
         frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);

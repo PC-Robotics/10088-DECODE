@@ -8,6 +8,7 @@ import android.graphics.Color;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -33,7 +34,13 @@ public class Intake implements Subsystem {
 
     @Override
     public void init() {
-        intake = motorInit(opMode.hardwareMap, "intake", DcMotorSimple.Direction.REVERSE);
+        intake = motorInit(
+                opMode.hardwareMap,
+                "intake",
+                DcMotorSimple.Direction.REVERSE,
+                DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        );
+
         intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
     }
 

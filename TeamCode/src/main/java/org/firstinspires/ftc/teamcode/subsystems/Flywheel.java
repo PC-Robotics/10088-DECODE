@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import static org.firstinspires.ftc.teamcode.HardwareUtility.motorInit;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -41,8 +42,19 @@ public class Flywheel implements Subsystem {
 
     @Override
     public void init() {
-        flywheelLeft = motorInit(opMode.hardwareMap, "flywheelleft", DcMotorSimple.Direction.FORWARD);
-        flywheelRight = motorInit(opMode.hardwareMap, "flywheelright", DcMotorSimple.Direction.REVERSE);
+        DcMotor.RunMode runMode = runPIDF ? DcMotor.RunMode.RUN_WITHOUT_ENCODER : DcMotor.RunMode.RUN_USING_ENCODER;
+        flywheelLeft = motorInit(
+                opMode.hardwareMap,
+                "flywheelleft",
+                DcMotorSimple.Direction.REVERSE,
+                runMode
+        );
+        flywheelRight = motorInit(
+                opMode.hardwareMap,
+                "flywheelright",
+                DcMotorSimple.Direction.FORWARD,
+                runMode
+        );
 
         flywheelLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         flywheelRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
