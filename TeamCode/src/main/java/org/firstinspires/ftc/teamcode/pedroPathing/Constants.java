@@ -101,7 +101,7 @@ public class Constants {
             .xVelocity(60.670928714782235)
             .yVelocity(50.71566460076281);
 
-    public static TwoWheelConstants localizerConstants = new TwoWheelConstants()
+    public static TwoWheelConstants twoWheelLocalizerConstants = new TwoWheelConstants()
             .forwardPodY(0)
             .strafePodX(0)
             .forwardEncoder_HardwareMapName("backleft")
@@ -119,6 +119,17 @@ public class Constants {
             .strafeTicksToInches(.00195);
 
 
+
+
+    public static PinpointConstants pinpointLocalizerConstants = new PinpointConstants()
+            .forwardPodY(5.98)
+            .strafePodX(-6.92)
+            .distanceUnit(DistanceUnit.INCH)
+            .hardwareMapName("pinpoint")
+            .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
+            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+
     // TODO - set constraints
     public static PathConstraints pathConstraints = new PathConstraints(
             0.995,
@@ -133,7 +144,7 @@ public class Constants {
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
-                .twoWheelLocalizer(localizerConstants)
+                .pinpointLocalizer(pinpointLocalizerConstants)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
                 .build();
