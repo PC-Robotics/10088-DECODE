@@ -108,7 +108,7 @@ public class MainTeleop extends LinearOpMode {
         }
 
         if (gamepad2.dpadUpWasPressed()) {
-            robot.flywheel.spinToSpeed();
+            robot.flywheel.spinPower();
         } else if (gamepad2.dpadDownWasPressed()) {
             robot.flywheel.stop();
         }
