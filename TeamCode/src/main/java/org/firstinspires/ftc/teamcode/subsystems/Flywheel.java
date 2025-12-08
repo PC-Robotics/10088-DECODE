@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
@@ -34,6 +35,22 @@ public class Flywheel implements Subsystem {
         }
     }
 
+    public enum LED_COLOR {
+        OFF(0.0),
+        GREEN(0.5),
+        RED(0.29),
+        YELLOW(0.388),
+        BLUE(0.65),
+        WHITE(1.0);
+
+        final double value;
+
+        LED_COLOR(double value) {
+            this.value = value;
+        }
+    }
+
+
     private static final double fifteenOverPI = 15 / Math.PI;
 
     private static final double READY_RPM_TOLERANCE = 75;
@@ -44,6 +61,7 @@ public class Flywheel implements Subsystem {
 
     private DcMotorEx flywheelLeft;
     private DcMotorEx flywheelRight;
+    private ServoImplEx light; // this is controlled like a servo using setPosition()
 
     private final boolean runPIDF;
     private double currentRPM;
@@ -94,6 +112,9 @@ public class Flywheel implements Subsystem {
 
         flywheelLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         flywheelRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+
+        light = opMode.hardwareMap.get(ServoImplEx.class, "light");
+        light.setPosition(LED_COLOR.OFF.value);
     }
 
 
@@ -120,7 +141,7 @@ public class Flywheel implements Subsystem {
             updateReadyToShootSimple();
         }
 
-
+        light.setPosition(readyToShoot ? LED_COLOR.GREEN.value : LED_COLOR.RED.value);
     }
 
 
@@ -226,6 +247,7 @@ public class Flywheel implements Subsystem {
         readyToShoot = false;
         readyCycles = 0;
         power = 0.0;
+        light.setPosition(LED_COLOR.OFF.value);
     }
 
 
