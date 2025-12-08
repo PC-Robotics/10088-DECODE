@@ -33,7 +33,7 @@ public class Robot {
         this.myOpMode = opMode;
         driveBase = new DriveBase(myOpMode);
         intake = new Intake(myOpMode);
-        flywheel = new Flywheel(myOpMode);
+        flywheel = new Flywheel(myOpMode, true);
         transfer = new Transfer(myOpMode);
         currentPose = null;
         this.isRobotCentric = isRobotCentric;
