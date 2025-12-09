@@ -24,7 +24,8 @@ public class Robot {
 
     public Pose currentPose;
     public static Pose endPose; // static variables are saved between auto and teleop so this variable helps us do that
-    public static Pose scorePose = new Pose(56, 18, Math.toRadians(315));
+    public static Pose farScorePose = new Pose(56, 18, Math.toRadians(315));
+    public static Pose closeScorePose = new Pose(60, 84, Math.toRadians(315));
 
     // Define a constructor that allows the OpMode to pass a reference to itself.
     public Robot(LinearOpMode opMode) {
@@ -62,7 +63,8 @@ public class Robot {
 
     public void setAlliance(Alliance alliance) {
         if (Robot.alliance != alliance) {
-            scorePose = scorePose.mirror();
+            farScorePose = farScorePose.mirror();
+            closeScorePose = closeScorePose.mirror();
         }
 
         Robot.alliance = alliance;

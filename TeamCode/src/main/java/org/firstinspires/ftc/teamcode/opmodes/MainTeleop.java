@@ -70,7 +70,7 @@ public class MainTeleop extends LinearOpMode {
             if (autoTurn) {
                 robot.follower.holdPoint(
                         new BezierPoint(robot.currentPose),
-                        Robot.scorePose.getHeading(),
+                        Robot.farScorePose.getHeading(),
                         false);
             } else {
                  // fallback
