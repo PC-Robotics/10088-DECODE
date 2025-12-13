@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.firstinspires.ftc.teamcode.HardwareUtility.motorInit;
 import static org.firstinspires.ftc.teamcode.Utility.clamp;
+import static org.firstinspires.ftc.teamcode.Utility.lerp;
 
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
@@ -15,6 +16,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 public class Flywheel implements Subsystem {
@@ -57,6 +60,12 @@ public class Flywheel implements Subsystem {
     private static final double READY_DERIVATIVE_TOLERANCE = 50;
     private static final int READY_CYCLES_REQUIRED = 5;
 
+    private static final double LOOKUP_TABLE_STEPS = 5.0;
+    private static final double MIN_RPM = 500.0;
+    private static final double MAX_RPM = 6000.0;
+    private static final double MIN_DISTANCE = 0;
+    private static final double MAX_DISTANCE = 200.0;
+
     private LinearOpMode opMode;
 
     private DcMotorEx flywheelLeft;
@@ -70,8 +79,11 @@ public class Flywheel implements Subsystem {
     private boolean readyToShoot = false;
     private int readyCycles = 0;
 
+    private double distanceToGoal = 0.0;
+
     private FLYWHEEL_STATE flywheelState = FLYWHEEL_STATE.IDLE;
     private FLYWHEEL_SPIN_POSITION spinPosition = FLYWHEEL_SPIN_POSITION.CLOSE;
+    private TreeMap<Double, Double> distanceToRPM;
 
     private final PIDFController controller;
 
@@ -90,6 +102,10 @@ public class Flywheel implements Subsystem {
         controller = new PIDFController(coefficients);
         if (runPIDF) {
             controller.setTargetPosition(spinPosition.rpm);
+        }
+
+        for (double i = MIN_DISTANCE; i <= MAX_DISTANCE; i += LOOKUP_TABLE_STEPS) {
+            distanceToRPM.put(i, getRPM(i));
         }
     }
 
@@ -129,6 +145,7 @@ public class Flywheel implements Subsystem {
         }
 
         if (runPIDF) {
+            controller.setTargetPosition(lookupRPM(distanceToGoal));
             controller.updatePosition(currentRPM);
             controller.updateFeedForwardInput(spinPosition.power);
 
@@ -251,6 +268,30 @@ public class Flywheel implements Subsystem {
     }
 
 
+    private static double getRPM(double distance) {
+        return clamp(Math.pow(distance, 1.6064) * 1.78533, MIN_RPM, MAX_RPM);
+    }
+
+
+    private double lookupRPM(double distance) {
+        Map.Entry<Double, Double> lowerEntry = distanceToRPM.floorEntry(distance);
+        Map.Entry<Double, Double> upperEntry = distanceToRPM.ceilingEntry(distance);
+
+        if (lowerEntry == null) {
+            return distanceToRPM.firstEntry().getValue();
+        }
+        if (upperEntry == null) {
+            return distanceToRPM.lastEntry().getValue();
+        }
+
+        return lerp(
+                lowerEntry.getValue(),
+                upperEntry.getValue(),
+                (distance - lowerEntry.getKey()) / (upperEntry.getKey() - lowerEntry.getKey())
+        );
+    }
+
+
     @Override
     public List<String> getTelemetry() {
         double avgPower = (flywheelLeft.getPower() + flywheelRight.getPower()) * 0.5;
@@ -284,5 +325,10 @@ public class Flywheel implements Subsystem {
 
     public FLYWHEEL_SPIN_POSITION getSpinPosition() {
         return spinPosition;
+    }
+
+
+    public void setDistanceToGoal(double distanceToGoal) {
+        this.distanceToGoal = distanceToGoal;
     }
 }
