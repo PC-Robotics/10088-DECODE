@@ -52,41 +52,42 @@ public class Constants {
              *
              */
             .translationalPIDFCoefficients(new PIDFCoefficients(
-                    0.03,
                     0,
                     0,
-                    0.015
+                    0,
+                    0
             ))
-            .translationalPIDFSwitch(4)
-            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
-                    0.4,
-                    0,
-                    0.005,
-                    0.0006
-            ))
+//            .translationalPIDFSwitch(4)
+//            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
+//                    0.4,
+//                    0,
+//                    0.005,
+//                    0.0006
+//            ))
             .headingPIDFCoefficients(new PIDFCoefficients(
-                    0.8,
                     0,
                     0,
-                    0.01
+                    0,
+                    0
             ))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
-                    2.5,
-                    0,
-                    0.1,
-                    0.0005
-            ))
+//            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
+//                    2.5,
+//                    0,
+//                    0.1,
+//                    0.0005
+//            ))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
-                    0.1,
                     0,
-                    0.00035,
-                    0.6,
-                    0.015
+                    0,
+                    0,
+                    0,
+                    0
             ))
 
-            .drivePIDFSwitch(15)
-            .centripetalScaling(0.0005);
+//            .drivePIDFSwitch(15)
+//            .centripetalScaling(0.0005)
             ;
+
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -100,6 +101,7 @@ public class Constants {
             .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .xVelocity(60.670928714782235)
             .yVelocity(50.71566460076281);
+
 
     public static TwoWheelConstants twoWheelLocalizerConstants = new TwoWheelConstants()
             .forwardPodY(0)
@@ -119,8 +121,6 @@ public class Constants {
             .strafeTicksToInches(.00195);
 
 
-
-
     public static PinpointConstants pinpointLocalizerConstants = new PinpointConstants()
             .forwardPodY(6.14)// 6.14
             .strafePodX(-6.61)// -6.61
@@ -129,6 +129,7 @@ public class Constants {
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+
 
     // TODO - set constraints
     public static PathConstraints pathConstraints = new PathConstraints(
@@ -141,6 +142,7 @@ public class Constants {
             10,
             1
     );
+
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
