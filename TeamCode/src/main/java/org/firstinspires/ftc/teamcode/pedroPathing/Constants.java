@@ -109,7 +109,7 @@ public class Constants {
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(
                     new RevHubOrientationOnRobot(
-                            RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                            RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
                             RevHubOrientationOnRobot.UsbFacingDirection.UP
                     )
             )
@@ -122,9 +122,9 @@ public class Constants {
 
 
     public static PinpointConstants pinpointLocalizerConstants = new PinpointConstants()
-            .forwardPodY(5.98)
-            .strafePodX(-6.92)
-            .distanceUnit(DistanceUnit.INCH)
+            .forwardPodY(6.14)// 6.14
+            .strafePodX(-6.61)// -6.61
+            .distanceUnit(DistanceUnit.INCH)//changed from inches to MM
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
