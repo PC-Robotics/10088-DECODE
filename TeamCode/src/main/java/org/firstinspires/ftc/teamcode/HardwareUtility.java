@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 /**
  * Utility class for hardware initialization.
@@ -42,8 +44,8 @@ public class HardwareUtility {
      * @param direction   Direction for the servo
      * @return Configured Servo instance
      */
-    public static Servo servoInit(HardwareMap hardwareMap, String name, Servo.Direction direction) {
-        Servo servo = hardwareMap.get(Servo.class, name);
+    public static ServoImplEx servoInit(HardwareMap hardwareMap, String name, Servo.Direction direction) {
+        ServoImplEx servo = hardwareMap.get(ServoImplEx.class, name);
         servo.setDirection(direction);
         return servo;
     }
@@ -56,8 +58,8 @@ public class HardwareUtility {
      * @param direction   Direction for the CRServo
      * @return Configured CRServo instance
      */
-    public static CRServo CRServoInit(HardwareMap hardwareMap, String name, CRServo.Direction direction) {
-        CRServo crServo = hardwareMap.get(CRServo.class, name);
+    public static CRServoImplEx CRServoInit(HardwareMap hardwareMap, String name, CRServo.Direction direction) {
+        CRServoImplEx crServo = hardwareMap.get(CRServoImplEx.class, name);
         crServo.setDirection(direction);
         return crServo;
     }

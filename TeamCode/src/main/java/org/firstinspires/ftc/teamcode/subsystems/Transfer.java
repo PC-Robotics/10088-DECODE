@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Transfer implements Subsystem {
     private LinearOpMode opMode;
-    public CRServo transfer;
+    public CRServoImplEx transfer;
 
     public Transfer(LinearOpMode opMode) {
         this.opMode = opMode;
