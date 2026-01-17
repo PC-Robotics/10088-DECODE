@@ -116,13 +116,13 @@ public class Flywheel implements Subsystem {
         flywheelLeft = motorInit(
                 opMode.hardwareMap,
                 "flywheelleft",
-                DcMotorSimple.Direction.REVERSE,
+                DcMotorSimple.Direction.FORWARD,
                 runMode
         );
         flywheelRight = motorInit(
                 opMode.hardwareMap,
                 "flywheelright",
-                DcMotorSimple.Direction.FORWARD,
+                DcMotorSimple.Direction.REVERSE,
                 runMode
         );
 
