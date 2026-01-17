@@ -19,10 +19,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(10.1) // kg
-            .forwardZeroPowerAcceleration(-33.133379260920165)
-            .lateralZeroPowerAcceleration(-48.819512320288666)
-            /* TODO - tune PID values: https://pedropathing.com/docs/pathing/tuning/pids
+            .mass(9.4) // kg
+            .forwardZeroPowerAcceleration(-30.33758730435513)
+            .lateralZeroPowerAcceleration(-53.48519897968198)
+            /* tune PID values: https://pedropathing.com/docs/pathing/tuning/pids
             * https://www.youtube.com/watch?v=vihb2LPtSK0
             * if one PID doesnt work then tune secondary PID system.
              */
@@ -52,38 +52,41 @@ public class Constants {
              *
              */
             .translationalPIDFCoefficients(new PIDFCoefficients(
+                    0.07,
                     0,
-                    0,
-                    0,
-                    0
+                    0.01,
+                    0.033
             ))
-//            .translationalPIDFSwitch(4)
-//            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
-//                    0.4,
-//                    0,
-//                    0.005,
-//                    0.0006
-//            ))
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
+                    0.2,
+                    0,
+                    0.01,
+                    0.01
+            ))
             .headingPIDFCoefficients(new PIDFCoefficients(
+                    2,
                     0,
-                    0,
-                    0,
-                    0
+                    0.08,
+                    0.03
             ))
-//            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
-//                    2.5,
-//                    0,
-//                    0.1,
-//                    0.0005
-//            ))
+            // TODO - FIX DRIVE COEFFICIENTS
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
+                            .015,
                     0,
+                    0.01,
+                    0.6,
+                    0.33
+            ))
+            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(
+                    .02,
                     0,
-                    0,
-                    0,
-                    0
+                    0.000005,
+                    0.6,
+                    0.1
             ))
 
+            // TODO - TUNE THESE
+//            .translationalPIDFSwitch(4)
 //            .drivePIDFSwitch(15)
 //            .centripetalScaling(0.0005)
             ;
@@ -131,16 +134,15 @@ public class Constants {
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
 
-    // TODO - set constraints
     public static PathConstraints pathConstraints = new PathConstraints(
             0.995,
             0.1,
             0.1,
             0.009,
             50,
-            1.25,
+            1.25, // TODO - TUNE THIS
             10,
-            1
+            1 // TODO - TUNE THIS
     );
 
 
