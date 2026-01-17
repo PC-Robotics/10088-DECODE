@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 
 @Autonomous(name = "SimpleAuto", group = "Main", preselectTeleOp = "MainTeleop")
 public class SimpleAuto extends LinearOpMode {
-    private Robot robot = new Robot(this);
+    private Robot robot = new Robot(this, false);
 
     private TelemetryManager panelsTelemetry;
 

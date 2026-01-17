@@ -18,6 +18,8 @@ public class Robot {
     public Flywheel flywheel;
     public Transfer transfer;
 
+    public boolean isRobotCentric = false;
+
     // pedro
     public Follower follower;
     public static Alliance alliance = Alliance.BLUE;
@@ -27,13 +29,14 @@ public class Robot {
     public static Pose scorePose = new Pose(56, 18, Math.toRadians(315));
 
     // Define a constructor that allows the OpMode to pass a reference to itself.
-    public Robot(LinearOpMode opMode) {
+    public Robot(LinearOpMode opMode, boolean isRobotCentric) {
         this.myOpMode = opMode;
         driveBase = new DriveBase(myOpMode);
         intake = new Intake(myOpMode);
         flywheel = new Flywheel(myOpMode);
         transfer = new Transfer(myOpMode);
         currentPose = null;
+        this.isRobotCentric = isRobotCentric;
     }
 
     // initialize (main function)
@@ -48,7 +51,6 @@ public class Robot {
     public void update() {
         follower.update();
         currentPose = follower.getPose();
-
         driveBase.update();
         intake.update();
         flywheel.update();

@@ -41,8 +41,8 @@ public class Flywheel implements Subsystem {
 
     @Override
     public void init() {
-        flywheelLeft = motorInit(opMode.hardwareMap, "flywheelleft", DcMotorSimple.Direction.REVERSE);
-        flywheelRight = motorInit(opMode.hardwareMap, "flywheelright", DcMotorSimple.Direction.FORWARD);
+        flywheelLeft = motorInit(opMode.hardwareMap, "flywheelleft", DcMotorSimple.Direction.FORWARD);
+        flywheelRight = motorInit(opMode.hardwareMap, "flywheelright", DcMotorSimple.Direction.REVERSE);
 
         flywheelLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         flywheelRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
