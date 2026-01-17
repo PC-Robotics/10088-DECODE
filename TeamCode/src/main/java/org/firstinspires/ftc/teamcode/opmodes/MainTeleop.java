@@ -29,7 +29,7 @@ public class MainTeleop extends LinearOpMode {
     private double driveSpeed = 1;
 
     public void runOpMode() {
-        robot = new Robot(this);
+        robot = new Robot(this, false);
         robot.init();
 
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -73,14 +73,22 @@ public class MainTeleop extends LinearOpMode {
                         Robot.scorePose.getHeading(),
                         false);
             } else {
-                 // fallback
-
-                robot.follower.setTeleOpDrive(
-                        -gamepad1.left_stick_y * driveSpeed,
-                        -gamepad1.left_stick_x * driveSpeed,
-                        -gamepad1.right_stick_x * driveSpeed,
-                        true
-                );
+                if (robot.isRobotCentric) {
+                    robot.follower.setTeleOpDrive(
+                            -gamepad1.left_stick_y * driveSpeed,
+                            -gamepad1.left_stick_x * driveSpeed,
+                            -gamepad1.right_stick_x * driveSpeed,
+                            true
+                    );
+                } else {
+                    robot.follower.setTeleOpDrive(
+                            -gamepad1.left_stick_y * driveSpeed,
+                            -gamepad1.left_stick_x * driveSpeed,
+                            -gamepad1.right_stick_x * driveSpeed,
+                            false,
+                            angleOffset
+                    );
+                }
             }
 
 

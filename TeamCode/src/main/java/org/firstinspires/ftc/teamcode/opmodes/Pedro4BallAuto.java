@@ -41,7 +41,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 @SuppressWarnings("FieldMayBeFinal") // SILENCE PUNY WARNINGS
 public class Pedro4BallAuto extends LinearOpMode {
     @IgnoreConfigurable
-    private Robot robot = new Robot(this); // robot object
+    private Robot robot = new Robot(this, false); // robot object
     /* ball naming scheme
     c b a
     o o o 3

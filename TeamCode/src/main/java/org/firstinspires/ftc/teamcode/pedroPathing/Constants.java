@@ -99,8 +99,8 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .xVelocity(60.670928714782235)
-            .yVelocity(50.71566460076281);
+            .xVelocity(65.10661351962354)
+            .yVelocity(53.372667207492626);
 
 
     public static TwoWheelConstants twoWheelLocalizerConstants = new TwoWheelConstants()
