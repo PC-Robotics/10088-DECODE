@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.HardwareUtility.CRServoInit;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class Transfer implements Subsystem {
 
     @Override
     public void init() {
-        transfer = CRServoInit(opMode.hardwareMap, "transfer", CRServo.Direction.FORWARD);
+        transfer = CRServoInit(opMode.hardwareMap, "transfer", CRServo.Direction.REVERSE);
     }
 
     @Override
@@ -32,7 +33,7 @@ public class Transfer implements Subsystem {
 
     @Override
     public void stop() {
-        transfer.setPower(0);
+        transfer.setPower(-0.1);
     }
 
     @Override
