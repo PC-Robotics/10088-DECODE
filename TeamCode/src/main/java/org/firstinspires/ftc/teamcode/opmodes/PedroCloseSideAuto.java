@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 @Autonomous(name = "Pedro Close Side", group = "Main", preselectTeleOp = "MainTeleop")
 public class PedroCloseSideAuto extends LinearOpMode {
     @IgnoreConfigurable
-    private Robot robot = new Robot(this); // robot object
+    private Robot robot = new Robot(this, false); // robot object
     /* ball naming scheme
     c b a
     o o o 3
