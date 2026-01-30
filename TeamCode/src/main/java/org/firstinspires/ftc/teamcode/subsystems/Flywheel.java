@@ -99,6 +99,7 @@ public class Flywheel implements Subsystem {
     public Flywheel(LinearOpMode opMode, boolean runPIDF) {
         this.opMode = opMode;
         this.runPIDF = runPIDF;
+        distanceToRPM = new TreeMap<Double, Double>();
         controller = new PIDFController(coefficients);
         if (runPIDF) {
             controller.setTargetPosition(spinPosition.rpm);
@@ -227,8 +228,8 @@ public class Flywheel implements Subsystem {
     public void spinPower(double power) {
         flywheelState = FLYWHEEL_STATE.SPINNING;
         this.power = clamp(power, -1.0, 1.0);
-        flywheelLeft.setPower(power);
-        flywheelRight.setPower(power);
+        flywheelLeft.setPower(this.power);
+        flywheelRight.setPower(this.power);
     }
 
 
